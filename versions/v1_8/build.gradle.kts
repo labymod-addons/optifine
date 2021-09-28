@@ -18,3 +18,8 @@ mixin {
 	version("1.8.9")
 	addReferenceMap(sourceSets.findByName("main"), "labymod.refmap.json")
 }
+
+tasks.compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+    targetCompatibility = JavaVersion.VERSION_1_8.toString()
+}
