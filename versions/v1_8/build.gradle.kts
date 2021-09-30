@@ -12,6 +12,11 @@ dependencies {
 legacyMinecraft {
 	version("1.8.9")
 	mappingFile(File(rootProject.projectDir, "mappings/1.8.9.srg"))
+
+    mainClass("net.minecraft.launchwrapper.Launch")
+    args("--tweakClass", "net.labymod.core.loader.launch.LabyModTweaker")
+    args("--labymod-dev-environment", "true")
+    args("--addon-dev-environment", "true")
 }
 
 mixin {
