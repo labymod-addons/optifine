@@ -19,7 +19,8 @@ public class OptifineDownloadService extends DownloadService {
 
   @Override
   public void download(EnvironmentData data) throws IOException {
-    String gameVersion = data.getGameVersion();
+    // TODO: 06.11.2021 Daniel broke it :peepoSad:
+    String gameVersion = "yes"/*data.getGameVersion()*/;
 
     OptifineVersion optifineVersion = OptifineVersions.getVersion(gameVersion);
 

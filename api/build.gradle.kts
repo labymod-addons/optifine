@@ -7,8 +7,11 @@ repositories {
 }
 
 dependencies {
-    laby.addonProcessor()
-    laby.api()
+    //laby.addonProcessor()
+    //laby.api()
+    api("org.jetbrains:annotations:22.0.0")
+    api(files("../libs/models-0.1.0-local.jar"))
+    api(files("../libs/api-0.1.0-local.jar"))
 }
 
 tasks.compileJava {

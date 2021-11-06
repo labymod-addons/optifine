@@ -1,0 +1,13 @@
+.java_docker :
+  image : openjdk:16.0.2-jdk
+  tags :
+    - docker
+
+build :
+  stage : build
+  extends : .java_docker
+  script :
+    - sh gradlew build --full-stacktrace
+  artifacts:
+    paths:
+      - core/build/libs/*.jar
