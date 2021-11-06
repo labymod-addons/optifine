@@ -8,6 +8,7 @@ build :
   extends : .java_docker
   script :
     - sh gradlew build --full-stacktrace
+    - cp core/build/libs/optifine-* optifine.jar
   artifacts:
     paths:
-      - core/build/libs/*.jar
+      - optifine.jar
