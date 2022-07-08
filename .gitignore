@@ -131,3 +131,6 @@ docs/generated/
 
 # Project
 run/
+
+# LabyGradle | Addon Plugin
+build-data.txt

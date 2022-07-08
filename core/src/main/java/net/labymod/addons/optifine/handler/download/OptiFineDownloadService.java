@@ -6,36 +6,39 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import net.labymod.addons.optifine.handler.OptifineVersion;
-import net.labymod.addons.optifine.handler.OptifineVersions;
-import net.labymod.api.loader.EnvironmentData;
-import org.apache.commons.io.IOUtils;
+import net.labymod.addons.optifine.handler.OptiFineVersion;
+import net.labymod.addons.optifine.handler.OptiFineVersions;
+import net.labymod.api.models.version.Version;
+import net.labymod.api.util.io.IOUtil;
 
-public class OptifineDownloadService extends DownloadService {
+public class OptiFineDownloadService extends DownloadService {
 
   private static final String BASE_URL = "https://optifine.net/";
   private static final String URL_PATH = "adloadx?f=%s.jar";
   private static final String FOLLOW = "((.|\\R)+)(downloadx\\?f=%s\\.jar)([^']+)((.|\\R)+)";
 
+  private OptiFineVersion optiFineVersion;
+
   @Override
-  public void download(EnvironmentData data) throws IOException {
-    // TODO: 06.11.2021 Daniel broke it :peepoSad:
-    String gameVersion = "yes"/*data.getGameVersion()*/;
+  public void download(Version version) throws IOException {
+    String gameVersion = version.toString();
 
-    OptifineVersion optifineVersion = OptifineVersions.getVersion(gameVersion);
+    this.optiFineVersion = OptiFineVersions.getVersion(gameVersion);
 
-    if (optifineVersion == null) {
-      throw new IOException("No Optifine version was found for this specified version " + gameVersion);
+    if (this.optiFineVersion == null) {
+      throw new IOException(
+          "No Optifine version was found for this specified version " + gameVersion);
     }
 
     this.optifineJarPath = Paths.get(
         String.format(
-            "labymod-neo/optifine/%s.jar",
-            gameVersion
+            "labymod-neo/optifine/%s/%s.jar",
+            gameVersion,
+            this.optiFineVersion.getQualifiedJarName()
         )
     );
 
-    gameVersion = optifineVersion.getQualifiedJarName();
+    gameVersion = this.optiFineVersion.getQualifiedJarName();
 
     this.download(
         String.format(
@@ -49,6 +52,11 @@ public class OptifineDownloadService extends DownloadService {
     );
   }
 
+  @Override
+  public OptiFineVersion currentOptiFineVersion() {
+    return this.optiFineVersion;
+  }
+
   private void download(String urlPath, String follow) throws IOException {
     if (Files.exists(this.optifineJarPath)) {
       return;
@@ -57,7 +65,7 @@ public class OptifineDownloadService extends DownloadService {
     HttpURLConnection connection = (HttpURLConnection) new URL(BASE_URL + urlPath).openConnection();
     InputStream inputStream = connection.getInputStream();
 
-    String webContent = IOUtils.toString(inputStream);
+    String webContent = IOUtil.toString(inputStream);
 
     for (String content : webContent.split(System.lineSeparator())) {
       if (!content.matches(follow)) {
@@ -71,7 +79,7 @@ public class OptifineDownloadService extends DownloadService {
       Files.createDirectories(this.optifineJarPath.getParent());
       Files.write(
           this.optifineJarPath,
-          IOUtils.toByteArray(new URL(absoluteLink).openConnection().getInputStream())
+          IOUtil.readBytes(new URL(absoluteLink).openConnection().getInputStream())
       );
       break;
     }

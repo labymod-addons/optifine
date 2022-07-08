@@ -3,12 +3,12 @@ package net.labymod.addons.optifine.handler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public final class OptifineVersion {
+public final class OptiFineVersion {
 
   private final String minecraftVersion;
   private final String optifineVersion;
 
-  public OptifineVersion(String minecraftVersion, String optifineVersion) {
+  public OptiFineVersion(String minecraftVersion, String optifineVersion) {
     this.minecraftVersion = minecraftVersion;
     this.optifineVersion = optifineVersion;
   }
@@ -23,7 +23,7 @@ public final class OptifineVersion {
 
   @Contract(pure = true)
   public @NotNull String getQualifiedJarName() {
-    return "Optifine_" + this.minecraftVersion + "_" + this.optifineVersion;
+    return "OptiFine_" + this.minecraftVersion + "_" + this.optifineVersion;
   }
 
 }

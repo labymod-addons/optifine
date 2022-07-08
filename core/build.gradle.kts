@@ -1,5 +1,8 @@
+version = "0.1.0"
+
 plugins {
     id("java-library")
+    id("com.github.johnrengelman.shadow") version("7.1.2")
 }
 
 repositories {
@@ -7,20 +10,9 @@ repositories {
 }
 
 dependencies {
-    //laby.addonProcessor()
-    //laby.core()
-
-    annotationProcessor(files("../libs/addon-annotation-processor-0.1.0-local.jar"))
-    annotationProcessor(files("../libs/models-0.1.0-local.jar"))
-    annotationProcessor("com.google.code.gson:gson:2.8.6")
-    api(files("../libs/core-4.0.0-local.jar"))
-    api("commons-io:commons-io:2.5")
-    api("net.minecraft:launchwrapper:3.0.5")
+    labyProcessor()
+    labyApi("core")
     api(project(":api"))
-}
-
-addon {
-    internalRelease()
 }
 
 tasks.compileJava {
@@ -28,6 +20,32 @@ tasks.compileJava {
     targetCompatibility = JavaVersion.VERSION_1_8.toString()
 }
 
-tasks.jar {
-    archiveBaseName.set("optifine")
+dependencies {
+    api("net.minecraftforge:ForgeAutoRenamingTool:0.1.22-local")
+}
+
+tasks.shadowJar {
+
+    dependencies {
+        exclude(fun(it: ResolvedDependency): Boolean {
+            if (it.moduleGroup.startsWith("net.labymod4")) {
+                if (it.moduleName == "sponge-mixin") {
+                    return true;
+                }
+
+                if (it.moduleName == "fabric-loader") {
+                    return true;
+                }
+
+                return false;
+            }
+
+            if(it.moduleGroup.startsWith("net.minecraftforge")) {
+                return false;
+            }
+
+            return true;
+        })
+    }
+
 }

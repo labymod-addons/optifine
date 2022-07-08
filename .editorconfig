@@ -264,6 +264,10 @@ ij_java_wrap_comments = true
 ij_java_wrap_first_method_in_call_chain = false
 ij_java_wrap_long_lines = false
 
+[*.tsrg]
+indent_size = 4
+tab_width = 4
+
 [*.nbtt]
 indent_size = 4
 max_line_length = 150

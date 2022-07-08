@@ -7,8 +7,8 @@ repositories {
 }
 
 dependencies {
-    //laby.addonProcessor()
-    //laby.api()
+    labyProcessor()
+    labyApi("api")
     api("org.jetbrains:annotations:22.0.0")
     api(files("../libs/models-0.1.0-local.jar"))
     api(files("../libs/api-0.1.0-local.jar"))
