@@ -16,11 +16,14 @@ dependencies {
 
 legacyMinecraft {
     version(minecraftGameVersion)
+    val versionRepo = currentGameVersionDirectory(minecraftGameVersion)
 
     mainClass("net.minecraft.launchwrapper.Launch")
     args("--tweakClass", "net.labymod.core.loader.vanilla.launchwrapper.LabyModLaunchWrapperTweaker")
     args("--labymod-dev-environment", "true")
     args("--addon-dev-environment", "true")
+    jvmArgs("-Doptifine.dev.obf-mc-jar=${versionRepo.resolve("client-$minecraftGameVersion-obfuscated.jar")}")
+    jvmArgs("-Doptifine.dev.obf-mappings=${versionRepo.resolve("client-$minecraftGameVersion.srg")}")
 }
 
 volt {

@@ -20,15 +20,7 @@ minecraft {
     platform(org.spongepowered.gradle.vanilla.repository.MinecraftPlatform.CLIENT)
     runs {
         client {
-
-            val versionRepo = project.gradle.gradleUserHomeDir.toPath()
-                    .resolve("caches")
-                    .resolve("labymod-gradle")
-                    .resolve("repository")
-                    .resolve("net")
-                    .resolve("minecraft")
-                    .resolve("client")
-                    .resolve(minecraftGameVersion)
+            val versionRepo = currentGameVersionDirectory(minecraftGameVersion)
 
             mainClass("net.minecraft.launchwrapper.Launch")
             args("--tweakClass", "net.labymod.core.loader.vanilla.launchwrapper.LabyModLaunchWrapperTweaker")

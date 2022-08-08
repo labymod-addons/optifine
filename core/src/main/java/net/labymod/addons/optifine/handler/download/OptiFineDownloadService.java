@@ -3,6 +3,7 @@ package net.labymod.addons.optifine.handler.download;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -12,6 +13,8 @@ import net.labymod.api.models.version.Version;
 import net.labymod.api.util.io.IOUtil;
 
 public class OptiFineDownloadService extends DownloadService {
+
+  private static final String USER_AGENT = "OptifineHandler";
 
   private static final String BASE_URL = "https://optifine.net/";
   private static final String URL_PATH = "adloadx?f=%s.jar";
@@ -62,7 +65,12 @@ public class OptiFineDownloadService extends DownloadService {
       return;
     }
 
-    HttpURLConnection connection = (HttpURLConnection) new URL(BASE_URL + urlPath).openConnection();
+    HttpURLConnection connection = this.prepareConnection(BASE_URL + urlPath);
+
+    if (connection.getResponseCode() / 100 != 2) {
+      return;
+    }
+
     InputStream inputStream = connection.getInputStream();
 
     String webContent = IOUtil.toString(inputStream);
@@ -79,10 +87,16 @@ public class OptiFineDownloadService extends DownloadService {
       Files.createDirectories(this.optifineJarPath.getParent());
       Files.write(
           this.optifineJarPath,
-          IOUtil.readBytes(new URL(absoluteLink).openConnection().getInputStream())
+          IOUtil.readBytes(this.prepareConnection(absoluteLink).getInputStream())
       );
       break;
     }
+  }
+
+  private HttpURLConnection prepareConnection(String url) throws IOException {
+    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection(Proxy.NO_PROXY);
+    connection.setRequestProperty("User-Agent", USER_AGENT);
+    return connection;
   }
 
 

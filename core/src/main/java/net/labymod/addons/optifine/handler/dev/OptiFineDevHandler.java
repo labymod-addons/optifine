@@ -112,14 +112,24 @@ public class OptiFineDevHandler {
 
       try (InputStream stream = OptiFineDevHandler.class.getResourceAsStream(
           "/" + version.getMinecraftVersion() + ".tsrg")) {
-        this.applyCustomOFMappings(strippedJar, moddedOptifine.toPath(), stream);
+        if (stream == null) {
+          moddedOptifine = strippedJar.toFile();
+        } else {
+          this.applyCustomOFMappings(strippedJar, moddedOptifine.toPath(), stream);
+        }
+      } catch (IOException exception) {
+        moddedOptifine = strippedJar.toFile();
       }
 
       IMappingFile mappingFile;
       try (InputStream stream = Files.newInputStream(this.mappingPath)) {
         mappingFile = IMappingFile.load(stream);
       }
-      mappingFile = mappingFile.reverse();
+
+      String name = this.mappingPath.getFileName().toString();
+      if (!name.endsWith("srg") && !name.endsWith("tsrg")) {
+        mappingFile = mappingFile.reverse();
+      }
 
       renamerBuilder.add(new SeargeTransformer());
       renamerBuilder.add(Transformer.renamerFactory(mappingFile));
@@ -190,7 +200,7 @@ public class OptiFineDevHandler {
     @Override
     public ClassEntry process(ClassEntry entry) {
       String name = entry.getName();
-      if (name.startsWith("net/minecraft") || name.startsWith("com/mojang")) {
+      if (name.startsWith("net/minecraft/") || name.startsWith("com/mojang/")) {
         return ClassEntry.create("notch/" + name, entry.getTime(), entry.getData());
       }
 

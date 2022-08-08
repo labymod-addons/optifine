@@ -17,22 +17,24 @@ import net.labymod.api.loader.platform.PlatformEnvironment;
 import net.labymod.api.models.addon.annotation.AddonEntryPoint;
 import net.labymod.api.models.version.Version;
 import net.labymod.api.util.io.IOUtil;
+import net.labymod.api.util.logging.Logging;
+import net.labymod.api.util.version.SemanticVersion;
 import net.labymod.core.loader.DefaultLabyModLoader;
 import net.labymod.core.util.classpath.ClasspathUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @SuppressWarnings("UnstableApiUsage")
 @AddonEntryPoint
 public class OptiFineEntrypoint implements Entrypoint {
 
-  private static final Logger LOGGER = LogManager.getLogger("Optifine");
+  private static final Version VERSION_1_12_2 = new SemanticVersion("1.12.2");
 
   private static URI optifineUri;
+  private static Version version;
 
   @Override
   public void initialize(Version version) {
     try {
+      OptiFineEntrypoint.version = version;
       OptiFinePatcher patcher = new OptiFinePatcher();
 
       PlatformClassloader platformClassloader = PlatformEnvironment.getPlatformClassloader();
@@ -83,7 +85,8 @@ public class OptiFineEntrypoint implements Entrypoint {
           "optifine.OptiFineClassTransformer"
       );
     } catch (Exception exception) {
-      LOGGER.error("OptiFine could not be loaded because an error occurred!", exception);
+      System.out.println("OptiFine could not be loaded because an error occurred!");
+      exception.printStackTrace();
     }
   }
 
@@ -93,6 +96,16 @@ public class OptiFineEntrypoint implements Entrypoint {
 
   public static byte[] readDev(String name, ZipFile file) {
     if (file != null) {
+
+      if (version != null && version.isLowerThan(VERSION_1_12_2)) {
+        boolean addNotchPrefix = name.startsWith("net.minecraft");
+        name = name.replace(".class", "");
+        if (addNotchPrefix) {
+          name = "notch/" + name.replace(".", "/");
+        }
+        name += ".class";
+      }
+
       ZipEntry entry = file.getEntry(name);
       if (entry == null) {
         return null;
