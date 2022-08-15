@@ -20,7 +20,7 @@ public class PatchApplierClassEntryTransformer extends EntryTransformer<ClassEnt
 
   @Override
   public ClassEntry process(ClassEntry entry) {
-    List<Patcher> patches = this.optiFinePatcher.patchers().get(entry.getClassName());
+    List<Patcher> patches = this.optiFinePatcher.getPatchers().get(entry.getClassName());
 
     byte[] patchedData = null;
     if (patches != null) {

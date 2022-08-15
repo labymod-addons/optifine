@@ -58,12 +58,13 @@ addon {
         namespace("optifine")
         displayName("OptiFine")
         author("sp614x")
+        minecraftVersion("1.8.9")
         version(System.getenv().getOrDefault("VERSION", "0.0.0"))
     }
 
     dev {
         commitReference = "unknown"
-        releaseChannel = "develop"
+        releaseChannel = "addons-optifine-compatibility"
     }
 
     internalRelease()

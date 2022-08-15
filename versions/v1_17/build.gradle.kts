@@ -27,6 +27,8 @@ minecraft {
             args("--labymod-dev-environment", "true")
             args("--addon-dev-environment", "true")
             jvmArgs("-Dmixin.debug=true")
+            jvmArgs("-Dnet.labymod.debugging.renderdoc=true")
+
             jvmArgs("-Doptifine.dev.obf-mc-jar=${versionRepo.resolve("client-$minecraftGameVersion-obfuscated.jar")}")
             jvmArgs("-Doptifine.dev.obf-mappings=${versionRepo.resolve("client-$minecraftGameVersion.proguard")}")
         }
