@@ -16,7 +16,7 @@ import net.labymod.api.util.io.zip.entry.ClassEntry;
 import net.minecraftforge.fart.api.Renamer;
 import net.minecraftforge.fart.api.Renamer.Builder;
 import net.minecraftforge.fart.api.Transformer;
-import net.minecraftforge.srgutils.IMappingFile;
+import net.minecraftforge.fart.relocated.net.minecraftforge.srgutils.IMappingFile;
 
 public class OptiFineDevHandler {
 

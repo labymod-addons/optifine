@@ -1,3 +1,5 @@
+import java.nio.file.Files
+
 buildscript {
     repositories {
         var bearerToken = System.getenv("LABYMOD_BEARER_TOKEN")
@@ -27,7 +29,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("net.labymod.gradle", "addon", "0.2.42")
+        classpath("net.labymod.gradle", "addon", "0.2.45")
     }
 }
 
@@ -58,13 +60,13 @@ addon {
         namespace("optifine")
         displayName("OptiFine")
         author("sp614x")
-        minecraftVersion("1.8.9")
+        minecraftVersion("*")
         version(System.getenv().getOrDefault("VERSION", "0.0.0"))
     }
 
     dev {
         commitReference = "unknown"
-        releaseChannel = "addons-optifine-compatibility"
+        releaseChannel = "local"
     }
 
     internalRelease()

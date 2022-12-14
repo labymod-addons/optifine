@@ -25,10 +25,13 @@ configurations.getByName("api").extendsFrom(shade)
 
 
 dependencies {
-    shade("net.minecraftforge:ForgeAutoRenamingTool:0.1.22-local")
+    // FIXME
+    // In theory, LabyMod should prove a remapping service
+    shade(rootProject.files("libs/ForgeAutoRenamingTool-0.1.24-all.jar"))
 }
 
 tasks.jar {
+    exclude("net/optifine/**")
     from(shade.map { if (it.isDirectory) it else zipTree(it) })
     duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
 }

@@ -4,14 +4,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.labymod.addons.optifine.client.gfx.renderer.shadow.OptiFineShadowRenderPassContext;
 import net.labymod.api.Laby;
 import net.labymod.api.LabyAPI;
 import net.labymod.api.client.gui.screen.widget.converter.MinecraftWidgetType;
 import net.labymod.api.client.gui.screen.widget.converter.WidgetConverterRegistry;
+import net.labymod.api.event.EventBus;
 import net.labymod.api.event.Subscribe;
 import net.labymod.api.event.addon.lifecycle.AddonPostEnableEvent;
+import net.labymod.api.event.client.render.shadow.ShadowRenderPassContextEvent;
 import net.labymod.api.models.addon.annotation.AddonListener;
 import net.labymod.api.util.logging.Logging;
+import javax.inject.Inject;
 
 @AddonListener
 public class OptiFineAddon {
@@ -76,6 +80,11 @@ public class OptiFineAddon {
       }
 
     });
+  }
+
+  @Subscribe
+  public void onShadowRenderPassContext(ShadowRenderPassContextEvent event) {
+    event.setContext(new OptiFineShadowRenderPassContext());
   }
 
   private void registerWidgets(MinecraftWidgetType type, String packageName, String... classNames) {
