@@ -35,7 +35,8 @@ public class OptiFineEntrypoint implements Entrypoint {
   public void initialize(Version version) {
     try {
       OptiFineEntrypoint.version = version;
-      OptiFinePatcher patcher = new OptiFinePatcher();
+      boolean developmentEnvironment = DefaultLabyModLoader.getInstance().isLabyModDevelopmentEnvironment();
+      OptiFinePatcher patcher = new OptiFinePatcher(developmentEnvironment);
 
       PlatformClassloader platformClassloader = PlatformEnvironment.getPlatformClassloader();
 
@@ -49,7 +50,7 @@ public class OptiFineEntrypoint implements Entrypoint {
       Path optifineJarPath = optifineDownloader.getDownloadService().getOptifineJarPath();
 
       ClassLoader classloader = platformClassloader.getPlatformClassloader();
-      if (DefaultLabyModLoader.getInstance().isLabyModDevelopmentEnvironment()) {
+      if (developmentEnvironment) {
         OptiFineDevHandler handler = new OptiFineDevHandler();
         optifineJarPath = handler.handle(optiFineVersion, optifineJarPath);
       }
