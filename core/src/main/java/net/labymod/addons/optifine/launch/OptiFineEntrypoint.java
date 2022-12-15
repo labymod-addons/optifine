@@ -86,8 +86,7 @@ public class OptiFineEntrypoint implements Entrypoint {
           "optifine.OptiFineClassTransformer"
       );
     } catch (Exception exception) {
-      System.out.println("OptiFine could not be loaded because an error occurred!");
-      exception.printStackTrace();
+      throw new RuntimeException(exception);
     }
   }
 

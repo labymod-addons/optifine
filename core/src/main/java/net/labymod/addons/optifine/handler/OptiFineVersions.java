@@ -14,7 +14,7 @@ public final class OptiFineVersions {
   public static final OptiFineVersion OPTIFINE_1_8_9 = create("1.8.9", "HD_U_M5");
   public static final OptiFineVersion OPTIFINE_1_17_1 = create("1.17.1", "HD_U_H1");
   public static final OptiFineVersion OPTIFINE_1_18_2 = create("1.18.2", "HD_U_H7");
-  public static final OptiFineVersion OPTIFINE_1_19 = create("1.19", "HD_U_H8_pre9");
+  public static final OptiFineVersion OPTIFINE_1_19_2 = create("1.19.2", "HD_U_H9");
 
   private static @NotNull OptiFineVersion create(String minecraftVersion, String optifineVersion) {
     OptiFineVersion version = new OptiFineVersion(minecraftVersion, optifineVersion);

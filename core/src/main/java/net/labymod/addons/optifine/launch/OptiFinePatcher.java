@@ -44,7 +44,7 @@ public class OptiFinePatcher {
   }
 
   public void registerPatcher(String className, Patcher patcher) {
-    this.registerPatcher(false, className, patcher);
+    this.registerPatcher(true, className, patcher);
   }
 
   public void registerPatcher(boolean developmentEnvironment, String className, Patcher patcher) {
