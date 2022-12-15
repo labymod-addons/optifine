@@ -17,41 +17,35 @@ import net.labymod.api.util.io.zip.ZipTransformer;
 public class OptiFinePatcher {
 
   private final Map<String, List<Patcher>> patchers;
+  private final boolean legacyVersion;
+  private final boolean developmentEnvironment;
 
-  public OptiFinePatcher(boolean developmentEnvironment) {
+  public OptiFinePatcher(boolean legacyVersion, boolean developmentEnvironment) {
     this.patchers = new HashMap<>();
 
-    this.registerPatcher("optifine/OptiFineClassTransformer", new OptiFineTransformerPatcher());
-    this.registerPatcher(
-        developmentEnvironment,
-        "net/optifine/shaders/gui/GuiButtonDownloadShaders",
-        new OptiFineShaderDownloadButtonPatcher()
-    );
-    this.registerPatcher(
-        developmentEnvironment,
-        "net/optifine/gui/GuiButtonOF",
-        new OptiFineWidgetIdentifierPatcher()
-    );
-    this.registerPatcher(
-        developmentEnvironment,
-        "net/optifine/shaders/Shaders",
-        new OptiFineShadersPatcher()
-    );
+    this.legacyVersion = legacyVersion;
+    this.developmentEnvironment = developmentEnvironment;
+
+    this.registerPatcher("optifine/OptiFineClassTransformer", "", new OptiFineTransformerPatcher());
+    this.registerPatcher("net/optifine/shaders/gui/GuiButtonDownloadShaders", new OptiFineShaderDownloadButtonPatcher());
+    this.registerPatcher("net/optifine/gui/GuiButtonOF", new OptiFineWidgetIdentifierPatcher());
+    this.registerPatcher("net/optifine/shaders/Shaders", new OptiFineShadersPatcher());
   }
 
-  private String getPrefix(boolean developmentEnvironment) {
-    return developmentEnvironment ? "" : "notch/";
+  private String getPrefix() {
+    if (this.legacyVersion) {
+      return "";
+    }
+
+    return this.developmentEnvironment ? "" : "notch/";
   }
 
   public void registerPatcher(String className, Patcher patcher) {
-    this.registerPatcher(true, className, patcher);
+    this.registerPatcher(className, this.getPrefix(), patcher);
   }
 
-  public void registerPatcher(boolean developmentEnvironment, String className, Patcher patcher) {
-    this.patchers.computeIfAbsent(
-        this.getPrefix(developmentEnvironment) + className,
-        l -> new ArrayList<>()
-    ).add(patcher);
+  public void registerPatcher(String className, String prefix, Patcher patcher) {
+    this.patchers.computeIfAbsent(prefix + className, l -> new ArrayList<>()).add(patcher);
   }
 
   public Map<String, List<Patcher>> getPatchers() {
