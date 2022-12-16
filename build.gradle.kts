@@ -29,7 +29,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("net.labymod.gradle", "addon", "0.2.45")
+        classpath("net.labymod.gradle", "addon", "0.2.54")
     }
 }
 
@@ -62,11 +62,6 @@ addon {
         author("sp614x")
         minecraftVersion("*")
         version(System.getenv().getOrDefault("VERSION", "0.0.0"))
-    }
-
-    dev {
-        commitReference = "unknown"
-        releaseChannel = "local"
     }
 
     internalRelease()
