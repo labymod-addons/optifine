@@ -1,5 +1,5 @@
 .java_docker :
-  image : openjdk:16.0.2-jdk
+  image : amazoncorretto:17.0.0-alpine
   tags :
     - docker
 
