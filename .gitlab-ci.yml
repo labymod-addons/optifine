@@ -1,14 +1,20 @@
 .java_docker :
-  image : amazoncorretto:17.0.0-alpine
+  image : openjdk:17.0.1-jdk
   tags :
     - docker
 
-build :
-  stage : build
+publish :
+  stage : deploy
   extends : .java_docker
   script :
-    - sh gradlew build --full-stacktrace
-    - cp core/build/libs/optifine-* optifine.jar
-  artifacts:
-    paths:
-      - optifine.jar
+    - export PUBLIC_RELEASE_BUILD="true" || 1
+    - export PUBLIC_RELEASE_BUILD_TOKEN="${LABYMOD_RELEASE_INTERN_TOKEN}" || exit 1
+    - export BEARER_TOKEN="${LABYMOD_BEARER_TOKEN}" || exit 1
+    - sh gradlew remapJar --full-stacktrace
+    - cp build/libs/* .
+  only :
+    - web
+  artifacts :
+    paths :
+      - ./*.jar
+  when : on_success
