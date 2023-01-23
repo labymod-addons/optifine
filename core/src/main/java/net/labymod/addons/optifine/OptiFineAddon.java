@@ -22,18 +22,15 @@ import java.util.List;
 import java.util.Map;
 import net.labymod.addons.optifine.client.gfx.renderer.shadow.OptiFineShadowRenderPassContext;
 import net.labymod.api.Laby;
-import net.labymod.api.LabyAPI;
 import net.labymod.api.client.gui.screen.widget.converter.MinecraftWidgetType;
 import net.labymod.api.client.gui.screen.widget.converter.WidgetConverterRegistry;
-import net.labymod.api.event.EventBus;
 import net.labymod.api.event.Subscribe;
 import net.labymod.api.event.addon.lifecycle.AddonPostEnableEvent;
 import net.labymod.api.event.client.render.shadow.ShadowRenderPassContextEvent;
-import net.labymod.api.models.addon.annotation.AddonListener;
+import net.labymod.api.models.addon.annotation.AddonMain;
 import net.labymod.api.util.logging.Logging;
-import javax.inject.Inject;
 
-@AddonListener
+@AddonMain
 public class OptiFineAddon {
 
   private static final String GUI_PACKAGE_NAME = "net.optifine.gui";
@@ -74,9 +71,8 @@ public class OptiFineAddon {
   @SuppressWarnings("unchecked")
   @Subscribe
   public void onAddonPostEnable(AddonPostEnableEvent event) {
-    LabyAPI labyAPI = Laby.labyAPI();
     Logging logger = Logging.create("Optifine");
-    WidgetConverterRegistry registry = labyAPI.widgetConverterRegistry();
+    WidgetConverterRegistry registry = Laby.references().widgetConverterRegistry();
     this.widgets.forEach((key, classNames) -> {
       for (String className : classNames) {
         try {
