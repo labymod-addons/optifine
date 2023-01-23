@@ -29,7 +29,7 @@ version = "1.0.0"
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 labyMod {
-    defaultPackageName = "net.labymod.addons.damageindicator" //change this to your main package name (used by all modules)
+    defaultPackageName = "net.labymod.addons.optifine" //change this to your main package name (used by all modules)
     addonInfo {
         namespace = "optifine"
         displayName = "OptiFine"
