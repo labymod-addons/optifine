@@ -3,21 +3,20 @@ plugins {
     id("com.github.johnrengelman.shadow") version ("7.1.2")
 }
 
-repositories {
-    mavenLocal()
-}
-
 val shade = configurations.create("shade")
 configurations.getByName("api").extendsFrom(shade)
 
 dependencies {
-    labyProcessor("processor")
     labyApi("core")
     api(project(":api"))
 
     // FIXME
     // In theory, LabyMod should prove a remapping service
     shade(rootProject.files("libs/ForgeAutoRenamingTool-0.1.24-all.jar"))
+}
+
+labyModProcessor {
+    referenceType = net.labymod.gradle.core.processor.ReferenceType.DEFAULT
 }
 
 tasks {
