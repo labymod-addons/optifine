@@ -61,7 +61,7 @@ public class OptiFineAddon {
     );
 
     this.registerWidgets(
-        MinecraftWidgetType.SLIDER,
+        MinecraftWidgetType.BUTTON,
         SHADER_GUI_PACKAGE_NAME,
         "GuiSliderShaderOption"
     );

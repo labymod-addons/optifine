@@ -23,10 +23,12 @@ public final class OptiFineVersion {
 
   private final String minecraftVersion;
   private final String optifineVersion;
+  private final boolean preview;
 
-  public OptiFineVersion(String minecraftVersion, String optifineVersion) {
+  public OptiFineVersion(String minecraftVersion, String optifineVersion, boolean preview) {
     this.minecraftVersion = minecraftVersion;
     this.optifineVersion = optifineVersion;
+    this.preview = preview;
   }
 
   public String getMinecraftVersion() {
@@ -39,7 +41,7 @@ public final class OptiFineVersion {
 
   @Contract(pure = true)
   public @NotNull String getQualifiedJarName() {
-    return "OptiFine_" + this.minecraftVersion + "_" + this.optifineVersion;
+    return (this.preview ? "preview_" : "")
+        + "OptiFine_" + this.minecraftVersion + "_" + this.optifineVersion;
   }
-
 }
