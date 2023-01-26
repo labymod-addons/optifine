@@ -37,6 +37,10 @@ public class OptiFineWidgetIdentifierPatcher implements Patcher {
     node.interfaces.add(Type.getInternalName(WidgetIdentifier.class));
 
     if (node.name.endsWith("GuiButtonOF")) {
+      String fieldNameId = "id";
+      if (node.superName.equals("avs")) {
+        fieldNameId = "k";
+      }
 
       MethodNode methodNode = new MethodNode(Opcodes.ACC_PUBLIC, "getIdentifier",
           "()Ljava/lang/String;", null, null);
@@ -52,7 +56,7 @@ public class OptiFineWidgetIdentifierPatcher implements Patcher {
 
 
       insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
-      insnList.add(new FieldInsnNode(Opcodes.GETFIELD, node.name, "id", "I"));
+      insnList.add(new FieldInsnNode(Opcodes.GETFIELD, node.name, fieldNameId, "I"));
 
       insnList.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, stringBuilderType.getInternalName(), "append", "(I)" + stringBuilderType.getDescriptor()));
       insnList.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, stringBuilderType.getInternalName(), "toString", "()Ljava/lang/String;"));
