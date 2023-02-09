@@ -29,6 +29,7 @@ public final class OptiFineVersions {
   private static final List<OptiFineVersion> VERSIONS = new ArrayList<>();
   public static final OptiFineVersion OPTIFINE_1_8_9 = create("1.8.9", "HD_U_M5");
   public static final OptiFineVersion OPTIFINE_1_12_2 = create("1.12.2", "HD_U_G5");
+  public static final OptiFineVersion OPTIFINE_1_16_5 = create("1.16.5", "HD_U_G8");
   public static final OptiFineVersion OPTIFINE_1_17_1 = create("1.17.1", "HD_U_H1");
   public static final OptiFineVersion OPTIFINE_1_18_2 = create("1.18.2", "HD_U_H7");
   public static final OptiFineVersion OPTIFINE_1_19_2 = create("1.19.2", "HD_U_I1");
