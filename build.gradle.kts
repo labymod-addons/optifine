@@ -20,7 +20,7 @@ labyMod {
     }
 
     minecraft {
-        registerVersions("1.8.9", "1.17.1", "1.18.2", "1.19.2", "1.19.3") { version, provider ->
+        registerVersions("1.8.9", "1.12.2", "1.16.5", "1.17.1", "1.18.2", "1.19.2", "1.19.3") { version, provider ->
             configureRun(provider, version)
         }
 

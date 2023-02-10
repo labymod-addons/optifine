@@ -33,7 +33,6 @@ import net.labymod.api.loader.platform.PlatformEnvironment;
 import net.labymod.api.models.addon.annotation.AddonEntryPoint;
 import net.labymod.api.models.version.Version;
 import net.labymod.api.util.io.IOUtil;
-import net.labymod.api.util.logging.Logging;
 import net.labymod.api.util.version.SemanticVersion;
 import net.labymod.core.loader.DefaultLabyModLoader;
 import net.labymod.core.util.classpath.ClasspathUtil;
@@ -42,7 +41,7 @@ import net.labymod.core.util.classpath.ClasspathUtil;
 @AddonEntryPoint
 public class OptiFineEntrypoint implements Entrypoint {
 
-  private static final Version VERSION_1_12_2 = new SemanticVersion("1.12.2");
+  private static final Version LEGACY_VERSION = new SemanticVersion("1.16.5");
 
   private static URI optifineUri;
   private static Version version;
@@ -53,7 +52,7 @@ public class OptiFineEntrypoint implements Entrypoint {
       OptiFineEntrypoint.version = version;
       boolean developmentEnvironment = DefaultLabyModLoader.getInstance().isLabyModDevelopmentEnvironment();
       OptiFinePatcher patcher = new OptiFinePatcher(
-          version.isLowerThan(VERSION_1_12_2),
+          version.isLowerThan(LEGACY_VERSION),
           developmentEnvironment
       );
 
@@ -84,6 +83,13 @@ public class OptiFineEntrypoint implements Entrypoint {
           optifineJarPath.toAbsolutePath().toString(),
           "optifine"
       );
+
+      if (version.equals(LEGACY_VERSION)) {
+        platformClassloader.registerTransformer(
+            TransformerPhase.PRE,
+            "net.labymod.addons.optifine.launch.transformer.GLXTransformer"
+        );
+      }
 
       // Preload all classes
       for (String s : list) {
@@ -116,7 +122,7 @@ public class OptiFineEntrypoint implements Entrypoint {
   public static byte[] readDev(String name, ZipFile file) {
     if (file != null) {
 
-      if (version != null && version.isLowerThan(VERSION_1_12_2)) {
+      if (version != null && version.isLowerThan(LEGACY_VERSION)) {
         boolean addNotchPrefix = name.startsWith("net.minecraft");
         name = name.replace(".class", "");
         if (addNotchPrefix) {

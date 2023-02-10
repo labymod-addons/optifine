@@ -8,6 +8,7 @@ configurations.getByName("api").extendsFrom(shade)
 
 dependencies {
     labyApi("core")
+    labyApi("loader-vanilla-launchwrapper")
     api(project(":api"))
 
     // FIXME
