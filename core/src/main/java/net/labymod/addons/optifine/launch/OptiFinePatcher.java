@@ -33,35 +33,18 @@ import net.labymod.api.util.io.zip.ZipTransformer;
 public class OptiFinePatcher {
 
   private final Map<String, List<Patcher>> patchers;
-  private final boolean legacyVersion;
-  private final boolean developmentEnvironment;
 
-  public OptiFinePatcher(boolean legacyVersion, boolean developmentEnvironment) {
+  public OptiFinePatcher() {
     this.patchers = new HashMap<>();
 
-    this.legacyVersion = legacyVersion;
-    this.developmentEnvironment = developmentEnvironment;
-
-    this.registerPatcher("optifine/OptiFineClassTransformer", "", new OptiFineTransformerPatcher());
+    this.registerPatcher("optifine/OptiFineClassTransformer", new OptiFineTransformerPatcher());
     this.registerPatcher("net/optifine/shaders/gui/GuiButtonDownloadShaders", new OptiFineShaderDownloadButtonPatcher());
     this.registerPatcher("net/optifine/gui/GuiButtonOF", new OptiFineWidgetIdentifierPatcher());
     this.registerPatcher("net/optifine/shaders/Shaders", new OptiFineShadersPatcher());
   }
 
-  private String getPrefix() {
-    if (this.legacyVersion) {
-      return "";
-    }
-
-    return this.developmentEnvironment ? "" : "notch/";
-  }
-
   public void registerPatcher(String className, Patcher patcher) {
-    this.registerPatcher(className, this.getPrefix(), patcher);
-  }
-
-  public void registerPatcher(String className, String prefix, Patcher patcher) {
-    this.patchers.computeIfAbsent(prefix + className, l -> new ArrayList<>()).add(patcher);
+    this.patchers.computeIfAbsent(className, l -> new ArrayList<>()).add(patcher);
   }
 
   public Map<String, List<Patcher>> getPatchers() {
