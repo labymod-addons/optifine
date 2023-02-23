@@ -36,20 +36,26 @@ public class PatchApplierClassEntryTransformer extends EntryTransformer<ClassEnt
 
   @Override
   public ClassEntry process(ClassEntry entry) {
-    List<Patcher> patches = this.optiFinePatcher.getPatchers().get(entry.getClassName());
-
-    byte[] patchedData = null;
-    if (patches != null) {
-      byte[] data = null;
-      for (Patcher patcher : patches) {
-        data = this.applyPatch(data == null ? entry.getData() : data, patcher);
-      }
-
-      patchedData = data;
+    // Discard all classes in the searge directory as they are not needed
+    if (entry.getName().startsWith("srg/")) {
+      return null;
     }
 
-    return patchedData == null ? entry : new ClassEntry(
-        entry.getName(),
+    // Move all classes out of the notch directory
+    String name = entry.getName().replace("notch/", "");
+    String className = entry.getClassName().replace("notch/", "");
+
+    List<Patcher> patches = this.optiFinePatcher.getPatchers().get(className);
+
+    byte[] patchedData = entry.getData();
+    if (patches != null) {
+      for (Patcher patcher : patches) {
+        patchedData = this.applyPatch(patchedData, patcher);
+      }
+    }
+
+    return new ClassEntry(
+        name,
         entry.getTime(),
         patchedData
     );

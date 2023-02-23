@@ -51,10 +51,7 @@ public class OptiFineEntrypoint implements Entrypoint {
     try {
       OptiFineEntrypoint.version = version;
       boolean developmentEnvironment = DefaultLabyModLoader.getInstance().isLabyModDevelopmentEnvironment();
-      OptiFinePatcher patcher = new OptiFinePatcher(
-          version.isLowerThan(LEGACY_VERSION),
-          developmentEnvironment
-      );
+      OptiFinePatcher patcher = new OptiFinePatcher();
 
       PlatformClassloader platformClassloader = PlatformEnvironment.getPlatformClassloader();
 
