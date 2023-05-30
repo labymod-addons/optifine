@@ -105,7 +105,7 @@ public class OptiFineEntrypoint implements Entrypoint {
       // Register the optifine class transformer
       platformClassloader.registerTransformer(
           TransformerPhase.PRE,
-          "optifine.OptiFineClassTransformer"
+          "net.labymod.addons.optifine.launch.transformer.WrappedOptiFineTransformer"
       );
     } catch (Exception exception) {
       throw new RuntimeException(exception);
