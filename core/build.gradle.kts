@@ -1,19 +1,11 @@
 plugins {
     id("java-library")
-    id("com.github.johnrengelman.shadow") version ("7.1.2")
 }
-
-val shade = configurations.create("shade")
-configurations.getByName("api").extendsFrom(shade)
 
 dependencies {
     labyApi("core")
     labyApi("loader-vanilla-launchwrapper")
     api(project(":api"))
-
-    // FIXME
-    // In theory, LabyMod should prove a remapping service
-    shade(rootProject.files("libs/ForgeAutoRenamingTool-0.1.24-all.jar"))
 }
 
 labyModProcessor {
@@ -28,7 +20,6 @@ tasks {
 
     jar {
         exclude("net/optifine/**")
-        from(shade.map { if (it.isDirectory) it else zipTree(it) })
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
