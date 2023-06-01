@@ -25,7 +25,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import net.labymod.addons.optifine.handler.OptiFineVersion;
 import net.labymod.addons.optifine.handler.OptifineDownloader;
-import net.labymod.addons.optifine.handler.dev.OptiFineDevHandler;
 import net.labymod.api.addon.entrypoint.Entrypoint;
 import net.labymod.api.loader.platform.PlatformClassloader;
 import net.labymod.api.loader.platform.PlatformClassloader.TransformerPhase;
@@ -34,7 +33,6 @@ import net.labymod.api.models.addon.annotation.AddonEntryPoint;
 import net.labymod.api.models.version.Version;
 import net.labymod.api.util.io.IOUtil;
 import net.labymod.api.util.version.SemanticVersion;
-import net.labymod.core.loader.DefaultLabyModLoader;
 import net.labymod.core.util.classpath.ClasspathUtil;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -50,7 +48,6 @@ public class OptiFineEntrypoint implements Entrypoint {
   public void initialize(Version version) {
     try {
       OptiFineEntrypoint.version = version;
-      boolean developmentEnvironment = DefaultLabyModLoader.getInstance().isLabyModDevelopmentEnvironment();
       OptiFinePatcher patcher = new OptiFinePatcher();
 
       PlatformClassloader platformClassloader = PlatformEnvironment.getPlatformClassloader();
@@ -63,12 +60,6 @@ public class OptiFineEntrypoint implements Entrypoint {
           .currentOptiFineVersion();
 
       Path optifineJarPath = optifineDownloader.getDownloadService().getOptifineJarPath();
-
-      ClassLoader classloader = platformClassloader.getPlatformClassloader();
-      if (developmentEnvironment) {
-        OptiFineDevHandler handler = new OptiFineDevHandler();
-        optifineJarPath = handler.handle(optiFineVersion, optifineJarPath);
-      }
 
       optifineJarPath = patcher.patch(optiFineVersion, optifineJarPath);
       optifineUri = optifineJarPath.toUri();
@@ -88,6 +79,7 @@ public class OptiFineEntrypoint implements Entrypoint {
         );
       }
 
+      ClassLoader classloader = platformClassloader.getPlatformClassloader();
       // Preload all classes
       for (String s : list) {
         if (!s.endsWith(".class")) {
