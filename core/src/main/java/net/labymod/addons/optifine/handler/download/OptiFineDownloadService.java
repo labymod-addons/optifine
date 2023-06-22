@@ -42,6 +42,7 @@ public class OptiFineDownloadService extends DownloadService {
   public void download(Version version) throws IOException {
     String gameVersion = version.toString();
 
+
     this.optiFineVersion = OptiFineVersions.getVersion(gameVersion);
 
     if (this.optiFineVersion == null) {
