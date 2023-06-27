@@ -32,15 +32,19 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 public class OptiFineWidgetIdentifierPatcher implements Patcher {
 
+  private static final String GUI_BUTTON_NAME_V189 = "avs";
+  private static final String GUI_BUTTON_NAME_V1122 = "bja";
+
   @Override
   public void patch(ClassNode node) {
     node.interfaces.add(Type.getInternalName(WidgetIdentifier.class));
 
     if (node.name.endsWith("GuiButtonOF")) {
       String fieldNameId = "id";
-      if (node.superName.equals("avs")) {
+      if (node.superName.equals(GUI_BUTTON_NAME_V189) || node.superName.equals(GUI_BUTTON_NAME_V1122)) {
         fieldNameId = "k";
       }
+
 
       MethodNode methodNode = new MethodNode(Opcodes.ACC_PUBLIC, "getIdentifier",
           "()Ljava/lang/String;", null, null);
