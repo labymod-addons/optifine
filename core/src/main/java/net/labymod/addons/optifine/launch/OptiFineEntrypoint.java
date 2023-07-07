@@ -44,66 +44,6 @@ public class OptiFineEntrypoint implements Entrypoint {
   private static URI optifineUri;
   private static Version version;
 
-  @Override
-  public void initialize(Version version) {
-    try {
-      OptiFineEntrypoint.version = version;
-      OptiFinePatcher patcher = new OptiFinePatcher();
-
-      PlatformClassloader platformClassloader = PlatformEnvironment.getPlatformClassloader();
-
-      // Download the specified optifine version
-      OptifineDownloader optifineDownloader = new OptifineDownloader();
-      optifineDownloader.download(version);
-      OptiFineVersion optiFineVersion = optifineDownloader
-          .getDownloadService()
-          .currentOptiFineVersion();
-
-      Path optifineJarPath = optifineDownloader.getDownloadService().getOptifineJarPath();
-
-      optifineJarPath = patcher.patch(optiFineVersion, optifineJarPath);
-      optifineUri = optifineJarPath.toUri();
-
-      // Add the optifine jar to the classpath
-      platformClassloader.addPath(optifineJarPath);
-
-      List<String> list = ClasspathUtil.getJarEntryNames(
-          optifineJarPath.toAbsolutePath().toString(),
-          "optifine"
-      );
-
-      if (version.equals(LEGACY_VERSION)) {
-        platformClassloader.registerTransformer(
-            TransformerPhase.PRE,
-            "net.labymod.addons.optifine.launch.transformer.GLXTransformer"
-        );
-      }
-
-      ClassLoader classloader = platformClassloader.getPlatformClassloader();
-      // Preload all classes
-      for (String s : list) {
-        if (!s.endsWith(".class")) {
-          continue;
-        }
-        s = s.replace("/", ".");
-        s = s.substring(0, s.length() - ".class".length());
-        try {
-          classloader.loadClass(s);
-        } catch (Throwable throwable) {
-          // throwable.printStackTrace();
-        }
-      }
-
-      // Register the optifine class transformer
-      platformClassloader.registerTransformer(
-          TransformerPhase.PRE,
-          "net.labymod.addons.optifine.launch.transformer.WrappedOptiFineTransformer"
-      );
-    } catch (Exception exception) {
-      throw new RuntimeException(exception);
-    }
-  }
-
   public static URI optifineUri() {
     return optifineUri;
   }
@@ -133,4 +73,75 @@ public class OptiFineEntrypoint implements Entrypoint {
     return null;
   }
 
+  @Override
+  public void initialize(Version version) {
+    OptiFineEntrypoint.version = version;
+    OptiFinePatcher patcher = new OptiFinePatcher();
+
+    PlatformClassloader platformClassloader = PlatformEnvironment.getPlatformClassloader();
+
+    // Download the specified optifine version
+    OptifineDownloader optifineDownloader = new OptifineDownloader();
+    try {
+      optifineDownloader.download(version);
+    } catch (IOException exception) {
+      throw new RuntimeException("Failed to download OptiFine jar", exception);
+    }
+
+    Path optifineJarPath = optifineDownloader.getDownloadService().getOptifineJarPath();
+    if (IOUtil.isCorrupted(optifineJarPath)) {
+      throw new RuntimeException("OptiFine jar is corrupted");
+    }
+
+    OptiFineVersion optiFineVersion = optifineDownloader
+        .getDownloadService()
+        .currentOptiFineVersion();
+    try {
+      optifineJarPath = patcher.patch(optiFineVersion, optifineJarPath);
+    } catch (IOException exception) {
+      throw new RuntimeException("Failed to patch OptiFine jar", exception);
+    }
+    optifineUri = optifineJarPath.toUri();
+
+    // Add the optifine jar to the classpath
+    platformClassloader.addPath(optifineJarPath);
+
+    List<String> list;
+    try {
+      list = ClasspathUtil.getJarEntryNames(
+          optifineJarPath.toAbsolutePath().toString(),
+          "optifine"
+      );
+    } catch (IOException exception) {
+      throw new RuntimeException("Failed to read OptiFine jar entries", exception);
+    }
+
+    if (version.equals(LEGACY_VERSION)) {
+      platformClassloader.registerTransformer(
+          TransformerPhase.PRE,
+          "net.labymod.addons.optifine.launch.transformer.GLXTransformer"
+      );
+    }
+
+    ClassLoader classloader = platformClassloader.getPlatformClassloader();
+    // Preload all classes
+    for (String s : list) {
+      if (!s.endsWith(".class")) {
+        continue;
+      }
+      s = s.replace("/", ".");
+      s = s.substring(0, s.length() - ".class".length());
+      try {
+        classloader.loadClass(s);
+      } catch (Throwable throwable) {
+        // throwable.printStackTrace();
+      }
+    }
+
+    // Register the optifine class transformer
+    platformClassloader.registerTransformer(
+        TransformerPhase.PRE,
+        "net.labymod.addons.optifine.launch.transformer.WrappedOptiFineTransformer"
+    );
+  }
 }

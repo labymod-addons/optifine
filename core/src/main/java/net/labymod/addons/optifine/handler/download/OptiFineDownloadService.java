@@ -115,7 +115,5 @@ public class OptiFineDownloadService extends DownloadService {
     connection.setRequestProperty("User-Agent", USER_AGENT);
     return connection;
   }
-
-
 }
 
