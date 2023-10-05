@@ -31,8 +31,8 @@ public final class OptiFineVersions {
   public static final OptiFineVersion OPTIFINE_1_12_2 = create("1.12.2", "HD_U_G5");
   public static final OptiFineVersion OPTIFINE_1_16_5 = create("1.16.5", "HD_U_G8");
   public static final OptiFineVersion OPTIFINE_1_17_1 = create("1.17.1", "HD_U_H1");
-  public static final OptiFineVersion OPTIFINE_1_18_2 = create("1.18.2", "HD_U_H7");
-  public static final OptiFineVersion OPTIFINE_1_19_2 = create("1.19.2", "HD_U_I1");
+  public static final OptiFineVersion OPTIFINE_1_18_2 = create("1.18.2", "HD_U_H9");
+  public static final OptiFineVersion OPTIFINE_1_19_2 = create("1.19.2", "HD_U_I2");
   public static final OptiFineVersion OPTIFINE_1_19_3 = create("1.19.3", "HD_U_I3");
   public static final OptiFineVersion OPTIFINE_1_19_4 = create("1.19.4", "HD_U_I4");
   public static final OptiFineVersion OPTIFINE_1_20_1 = create("1.20.1", "HD_U_I5");
