@@ -55,7 +55,7 @@ labyMod {
     }
 
     addonDev {
-        localRelease()
+        productionRelease()
     }
 }
 
