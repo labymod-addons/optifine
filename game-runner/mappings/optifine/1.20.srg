@@ -1,0 +1,7 @@
+MD: fee/getChildOptiFine (Ljava/lang/String;)Lfee; fee/getChild (Ljava/lang/String;)Lfee;
+MD: enq$e/codecOptiFine ()Lcom/mojang/serialization/Codec; enq$e/codec ()Lcom/mojang/serialization/Codec;
+MD: enq$a/valueSplitterOptiFine ()Lenq$d$a; enq$a/valueSplitter ()Lenq$d$a;
+MD: enq$a/valueSetterOptiFine ()Lenq$d$a; enq$a/valueSetter ()Lenq$d$a;
+MD: enq$a/codecOptiFine ()Lcom/mojang/serialization/Codec; enq$a/codec ()Lcom/mojang/serialization/Codec;
+MD: enq$h/codecOptiFine ()Lcom/mojang/serialization/Codec; enq$h/codec ()Lcom/mojang/serialization/Codec;
+MD: fww/loadBlockModelOptiFine (Lacq;)Lfkw; fww/loadBlockModel (Lacq;)Lfkw;

@@ -1,0 +1,40 @@
+{
+  "versions": [
+    {
+      "game_version": "1.8.9",
+      "of_version": "HD_U_M5"
+    },
+    {
+      "game_version": "1.12.2",
+      "of_version": "HD_U_G5"
+    },
+    {
+      "game_version": "1.16.5",
+      "of_version": "HD_U_G8"
+    },
+    {
+      "game_version": "1.17.1",
+      "of_version": "HD_U_H1"
+    },
+    {
+      "game_version": "1.18.2",
+      "of_version": "HD_U_H9"
+    },
+    {
+      "game_version": "1.19.2",
+      "of_version": "HD_U_I2"
+    },
+    {
+      "game_version": "1.19.3",
+      "of_version": "HD_U_I3"
+    },
+    {
+      "game_version": "1.19.4",
+      "of_version": "HD_U_I4"
+    },
+    {
+      "game_version": "1.20.1",
+      "of_version": "HD_U_I5"
+    }
+  ]
+}

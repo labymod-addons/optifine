@@ -16,12 +16,15 @@
 
 package net.labymod.addons.optifine.handler;
 
+import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public final class OptiFineVersion {
 
+  @SerializedName("game_version")
   private final String minecraftVersion;
+  @SerializedName("of_version")
   private final String optifineVersion;
   private final boolean preview;
 

@@ -31,6 +31,7 @@ import net.labymod.api.loader.platform.PlatformClassloader.TransformerPhase;
 import net.labymod.api.loader.platform.PlatformEnvironment;
 import net.labymod.api.models.addon.annotation.AddonEntryPoint;
 import net.labymod.api.models.version.Version;
+import net.labymod.api.thirdparty.optifine.OptiFine;
 import net.labymod.api.util.io.IOUtil;
 import net.labymod.api.util.version.SemanticVersion;
 import net.labymod.core.util.classpath.ClasspathUtil;
