@@ -16,10 +16,11 @@
 
 package net.labymod.addons.optifine.client.gfx.renderer.shadow;
 
+import net.labymod.addons.optifine.client.gfx.renderer.shader.ShaderAccessor;
 import net.labymod.api.client.gfx.pipeline.renderer.shadow.ShadowRenderPassContext;
 import net.labymod.api.util.math.vector.FloatMatrix4;
-import net.optifine.shaders.Shaders;
 import org.jetbrains.annotations.Nullable;
+import java.nio.FloatBuffer;
 
 public class OptiFineShadowRenderPassContext implements ShadowRenderPassContext {
 
@@ -28,23 +29,29 @@ public class OptiFineShadowRenderPassContext implements ShadowRenderPassContext 
   private static final FloatMatrix4 SHADOW_PROJECTION_MATRIX = FloatMatrix4.newIdentity();
   private static final FloatMatrix4 SHADOW_PROJECTION_INVERSE_MATRIX = FloatMatrix4.newIdentity();
 
+  private final ShaderAccessor shaderAccessor;
+
+  public OptiFineShadowRenderPassContext(ShaderAccessor shaderAccessor) {
+    this.shaderAccessor = shaderAccessor;
+  }
+
   @Override
   public boolean isShadowRenderPass() {
-    return Shaders.isShadowPass;
+    return this.shaderAccessor.isShadowPass();
   }
 
   @Nullable
   @Override
   public FloatMatrix4 getShadowModelViewMatrix() {
     SHADOW_MODEL_VIEW_MATRIX.identity();
-    SHADOW_MODEL_VIEW_MATRIX.load(Shaders.shadowModelView);
+    SHADOW_MODEL_VIEW_MATRIX.load(this.shaderAccessor.getShadowModelViewBuffer());
     return SHADOW_MODEL_VIEW_MATRIX;
   }
 
   @Override
   public @Nullable FloatMatrix4 getShadowModelViewInverseMatrix() {
     SHADOW_MODEL_VIEW_INVERSE_MATRIX.identity();
-    SHADOW_MODEL_VIEW_INVERSE_MATRIX.load(Shaders.shadowModelViewInverse);
+    SHADOW_MODEL_VIEW_INVERSE_MATRIX.load(this.shaderAccessor.getShadowModelViewInverseBuffer());
     return SHADOW_MODEL_VIEW_INVERSE_MATRIX;
   }
 
@@ -52,14 +59,14 @@ public class OptiFineShadowRenderPassContext implements ShadowRenderPassContext 
   @Override
   public FloatMatrix4 getShadowProjectionMatrix() {
     SHADOW_PROJECTION_MATRIX.identity();
-    SHADOW_PROJECTION_MATRIX.load(Shaders.shadowProjection);
+    SHADOW_PROJECTION_MATRIX.load(this.shaderAccessor.getShadowProjectionBuffer());
     return SHADOW_PROJECTION_MATRIX;
   }
 
   @Override
   public @Nullable FloatMatrix4 getShadowProjectionInverseMatrix() {
     SHADOW_PROJECTION_INVERSE_MATRIX.identity();
-    SHADOW_PROJECTION_INVERSE_MATRIX.load(Shaders.shadowProjectionInverse);
+    SHADOW_PROJECTION_INVERSE_MATRIX.load(this.shaderAccessor.getShadowProjectionInverseBuffer());
     return SHADOW_PROJECTION_INVERSE_MATRIX;
   }
 }

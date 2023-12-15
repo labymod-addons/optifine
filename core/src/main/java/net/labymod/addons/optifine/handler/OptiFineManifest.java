@@ -14,16 +14,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package net.optifine.shaders;
+package net.labymod.addons.optifine.handler;
 
-import java.nio.FloatBuffer;
+import java.lang.Runtime.Version;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Shaders {
+public final class OptiFineManifest {
 
-  public static boolean isShadowPass;
-  public static final FloatBuffer shadowModelView = null;
-  public static final FloatBuffer shadowModelViewInverse = null;
-  public static final FloatBuffer shadowProjection = null;
-  public static final FloatBuffer shadowProjectionInverse = null;
+  private final List<OptiFineVersion> versions = new ArrayList<>();
+
+  public OptiFineVersion findVersion(String gameVersion){
+    for (OptiFineVersion version : this.versions) {
+      if (version.getMinecraftVersion().equals(gameVersion)) {
+        return version;
+      }
+    }
+
+    return null;
+  }
+
+  public List<OptiFineVersion> getVersions() {
+    return this.versions;
+  }
 
 }

@@ -1,0 +1,7 @@
+MD: fcr/getChildOptiFine (Ljava/lang/String;)Lfcr; fcr/getChild (Ljava/lang/String;)Lfcr;
+MD: emk$e/codecOptiFine ()Lcom/mojang/serialization/Codec; emk$e/codec ()Lcom/mojang/serialization/Codec;
+MD: emk$a/valueSplitterOptiFine ()Lemk$d$a; emk$a/valueSplitter ()Lemk$d$a;
+MD: emk$a/valueSetterOptiFine ()Lemk$d$a; emk$a/valueSetter ()Lemk$d$a;
+MD: emk$a/codecOptiFine ()Lcom/mojang/serialization/Codec; emk$a/codec ()Lcom/mojang/serialization/Codec;
+MD: emk$h/codecOptiFine ()Lcom/mojang/serialization/Codec; emk$h/codec ()Lcom/mojang/serialization/Codec;
+MD: fvd/loadBlockModelOptiFine (Ladd;)Lfjf; fvd/loadBlockModel (Ladd;)Lfjf;

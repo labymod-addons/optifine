@@ -1,0 +1,6 @@
+MD: eue/getChildOptiFine (Ljava/lang/String;)Leue; eue/getChild (Ljava/lang/String;)Leue;
+MD: efx$e/codecOptiFine ()Lcom/mojang/serialization/Codec; efx$e/codec ()Lcom/mojang/serialization/Codec;
+MD: efx$a/valueSplitterOptiFine ()Lefx$d$a; efx$a/valueSplitter ()Lefx$d$a;
+MD: efx$a/valueSetterOptiFine ()Lefx$d$a; efx$a/valueSetter ()Lefx$d$a;
+MD: efx$a/codecOptiFine ()Lcom/mojang/serialization/Codec; efx$a/codec ()Lcom/mojang/serialization/Codec;
+MD: efx$h/codecOptiFine ()Lcom/mojang/serialization/Codec; efx$h/codec ()Lcom/mojang/serialization/Codec;

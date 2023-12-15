@@ -18,18 +18,25 @@ package net.labymod.addons.optifine.handler.download;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.labymod.addons.optifine.handler.OptiFineVersion;
-import net.labymod.addons.optifine.handler.OptiFineVersions;
+import net.labymod.addons.optifine.handler.OptiFineManifest;
+import net.labymod.api.loader.platform.PlatformClassloader;
+import net.labymod.api.loader.platform.PlatformEnvironment;
 import net.labymod.api.models.version.Version;
 import net.labymod.api.util.io.IOUtil;
 
 public class OptiFineDownloadService extends DownloadService {
 
+  private static final Gson GSON = new GsonBuilder().create();
   private static final String USER_AGENT = "OptifineHandler";
 
   private static final String BASE_URL = "https://optifine.net/";
@@ -42,8 +49,19 @@ public class OptiFineDownloadService extends DownloadService {
   public void download(Version version) throws IOException {
     String gameVersion = version.toString();
 
+    URL url = this.getClass().getClassLoader().getResource("assets/optifine/versions.json");
+    if (url == null) {
+      throw new IOException("OptiFine manifest file not found");
+    }
 
-    this.optiFineVersion = OptiFineVersions.getVersion(gameVersion);
+    OptiFineManifest manifest;
+    try (Reader reader = new InputStreamReader(url.openStream())) {
+      manifest = GSON.fromJson(reader, OptiFineManifest.class);
+    } catch (IOException exception) {
+      throw new IOException("Failed to read OptiFine manifest file");
+    }
+
+    this.optiFineVersion = manifest.findVersion(gameVersion);
 
     if (this.optiFineVersion == null) {
       throw new IOException(

@@ -1,0 +1,7 @@
+MD: eyh/getChildOptiFine (Ljava/lang/String;)Leyh; eyh/getChild (Ljava/lang/String;)Leyh;
+MD: eji$e/codecOptiFine ()Lcom/mojang/serialization/Codec; eji$e/codec ()Lcom/mojang/serialization/Codec;
+MD: eji$a/valueSplitterOptiFine ()Leji$d$a; eji$a/valueSplitter ()Leji$d$a;
+MD: eji$a/valueSetterOptiFine ()Leji$d$a; eji$a/valueSetter ()Leji$d$a;
+MD: eji$a/codecOptiFine ()Lcom/mojang/serialization/Codec; eji$a/codec ()Lcom/mojang/serialization/Codec;
+MD: eji$h/codecOptiFine ()Lcom/mojang/serialization/Codec; eji$h/codec ()Lcom/mojang/serialization/Codec;
+MD: fqm/loadBlockModelOptiFine (Lacf;)Lfeu; fqm/loadBlockModel (Lacf;)Lfeu;
