@@ -19,25 +19,27 @@ package net.labymod.addons.optifine.gui;
 import net.labymod.api.Laby;
 import net.labymod.api.client.gui.screen.game.GameScreen;
 import net.labymod.api.client.gui.screen.game.GameScreenRegistry;
+import net.labymod.api.client.gui.screen.game.ScreenTag;
+import org.jetbrains.annotations.Nullable;
 
 public enum OptiFineScreen implements GameScreen {
-  ANIMATION("animation", true, true),
-  DETAIL("detail", true, true),
-  OTHER("other", true, true),
-  PERFORMANCE("performance", true, true),
-  QUALITY("quality", true, true),
-  SHADERS("shaders", true, true),
+  ANIMATION("animation", true, ScreenTag.OPTIONS),
+  DETAIL("detail", true, ScreenTag.OPTIONS),
+  OTHER("other", true, ScreenTag.OPTIONS),
+  PERFORMANCE("performance", true, ScreenTag.OPTIONS),
+  QUALITY("quality", true, ScreenTag.OPTIONS),
+  SHADERS("shaders", true, ScreenTag.OPTIONS),
   ;
   private static final OptiFineScreen[] VALUES = values();
 
   private final String id;
   private final boolean allowCustomFont;
-  private final boolean options;
+  private final ScreenTag tag;
 
-  OptiFineScreen(String id, boolean allowCustomFont, boolean options) {
+  OptiFineScreen(String id, boolean allowCustomFont, ScreenTag tag) {
     this.id = id;
     this.allowCustomFont = allowCustomFont;
-    this.options = options;
+    this.tag = tag;
   }
 
   @Override
@@ -51,8 +53,9 @@ public enum OptiFineScreen implements GameScreen {
   }
 
   @Override
-  public boolean isOptions() {
-    return this.options;
+  @Nullable
+  public ScreenTag getTag() {
+    return this.tag;
   }
 
   public static void register() {

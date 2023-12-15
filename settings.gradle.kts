@@ -1,7 +1,7 @@
 rootProject.name = "optifine"
 
 pluginManagement {
-    val labyGradlePluginVersion = "0.3.40"
+    val labyGradlePluginVersion = "0.3.41"
     plugins {
         id("net.labymod.gradle") version (labyGradlePluginVersion)
     }
