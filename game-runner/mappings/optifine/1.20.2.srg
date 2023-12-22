@@ -1,0 +1,7 @@
+MD: fic/getChildOptiFine (Ljava/lang/String;)Lfic; fic/getChild (Ljava/lang/String;)Lfic;
+MD: eqy$e/codecOptiFine ()Lcom/mojang/serialization/Codec; eqy$e/codec ()Lcom/mojang/serialization/Codec;
+MD: eqy$e/valueSplitterOptiFine ()Leqy$d$a; eqy$e/valueSplitter ()Leqy$d$a;
+MD: eqy$a/valueSetterOptiFine ()Leqy$d$a; eqy$a/valueSetter ()Leqy$d$a;
+MD: eqy$a/codecOptiFine ()Lcom/mojang/serialization/Codec; eqy$a/codec ()Lcom/mojang/serialization/Codec;
+MD: eqy$h/codecOptiFine ()Lcom/mojang/serialization/Codec; eqy$h/codec ()Lcom/mojang/serialization/Codec;
+MD: gbk/loadBlockModelOptiFine (Laew;)Lfpg; gbk/loadBlockModel (Laew;)Lfpg;

@@ -34,7 +34,15 @@
     },
     {
       "game_version": "1.20.1",
-      "of_version": "HD_U_I5"
+      "of_version": "HD_U_I6"
+    },
+    {
+      "game_version": "1.20.2",
+      "of_version": "HD_U_I7_pre1"
+    },
+    {
+      "game_version": "1.20.4",
+      "of_version": "HD_U_I7_pre2"
     }
   ]
 }

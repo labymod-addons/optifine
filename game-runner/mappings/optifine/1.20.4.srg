@@ -1,0 +1,7 @@
+MD: fmx/getChildOptiFine (Ljava/lang/String;)Lfmx; fmx/getChild (Ljava/lang/String;)Lfmx;
+MD: evl$e/codecOptiFine ()Lcom/mojang/serialization/Codec; evl$e/codec ()Lcom/mojang/serialization/Codec;
+MD: evl$e/valueSplitterOptiFine ()Levl$d$a; evl$e/valueSplitter ()Levl$d$a;
+MD: evl$a/valueSetterOptiFine ()Levl$d$a; evl$a/valueSetter ()Levl$d$a;
+MD: evl$a/codecOptiFine ()Lcom/mojang/serialization/Codec; evl$a/codec ()Lcom/mojang/serialization/Codec;
+MD: evl$h/codecOptiFine ()Lcom/mojang/serialization/Codec; evl$h/codec ()Lcom/mojang/serialization/Codec;
+MD: ggs/loadBlockModelOptiFine (Lahg;)Lfuj; ggs/loadBlockModel (Lahg;)Lfuj;
