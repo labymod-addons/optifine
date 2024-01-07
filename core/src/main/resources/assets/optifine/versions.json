@@ -38,11 +38,13 @@
     },
     {
       "game_version": "1.20.2",
-      "of_version": "HD_U_I7_pre1"
+      "of_version": "HD_U_I7_pre1",
+      "preview": true
     },
     {
       "game_version": "1.20.4",
-      "of_version": "HD_U_I7_pre2"
+      "of_version": "HD_U_I7_pre2",
+      "preview": true
     }
   ]
 }
