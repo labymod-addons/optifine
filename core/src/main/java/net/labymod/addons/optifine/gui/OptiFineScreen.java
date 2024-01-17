@@ -19,48 +19,35 @@ package net.labymod.addons.optifine.gui;
 import net.labymod.api.Laby;
 import net.labymod.api.client.gui.screen.game.GameScreen;
 import net.labymod.api.client.gui.screen.game.GameScreenRegistry;
-import net.labymod.api.client.gui.screen.game.ScreenTag;
-import org.jetbrains.annotations.Nullable;
+import net.labymod.api.client.gui.screen.game.ScreenTags;
+import net.labymod.api.client.gui.screen.game.SimpleGameScreen;
+import net.labymod.api.tag.Tag;
+import java.util.HashMap;
+import java.util.Map;
 
-public enum OptiFineScreen implements GameScreen {
-  ANIMATION("animation", true, ScreenTag.OPTIONS),
-  DETAIL("detail", true, ScreenTag.OPTIONS),
-  OTHER("other", true, ScreenTag.OPTIONS),
-  PERFORMANCE("performance", true, ScreenTag.OPTIONS),
-  QUALITY("quality", true, ScreenTag.OPTIONS),
-  SHADERS("shaders", true, ScreenTag.OPTIONS),
-  ;
-  private static final OptiFineScreen[] VALUES = values();
+public class OptiFineScreen {
+  private static final Map<String, GameScreen> SCREENS = new HashMap<>();
+  public static final GameScreen ANIMATION = createScreen("animation", true, ScreenTags.OPTIONS);
+  public static final GameScreen DETAIL = createScreen("detail", true, ScreenTags.OPTIONS);
+  public static final GameScreen OTHER = createScreen("other", true, ScreenTags.OPTIONS);
+  public static final GameScreen PERFORMANCE = createScreen("performance", true, ScreenTags.OPTIONS);
+  public static final GameScreen QUALITY = createScreen("quality", true, ScreenTags.OPTIONS);
+  public static final GameScreen SHADERS = createScreen("shaders", true, ScreenTags.OPTIONS);
 
-  private final String id;
-  private final boolean allowCustomFont;
-  private final ScreenTag tag;
 
-  OptiFineScreen(String id, boolean allowCustomFont, ScreenTag tag) {
-    this.id = id;
-    this.allowCustomFont = allowCustomFont;
-    this.tag = tag;
-  }
+  private static GameScreen createScreen(String id, boolean allowCustomFont, Tag... tags) {
+    var newScreen = new SimpleGameScreen(id, allowCustomFont, tags);
+    if (SCREENS.containsKey(id)) {
+      throw new IllegalStateException("Screen with id " + id + " already exists");
+    }
 
-  @Override
-  public String getId() {
-    return this.id;
-  }
-
-  @Override
-  public boolean allowCustomFont() {
-    return this.allowCustomFont;
-  }
-
-  @Override
-  @Nullable
-  public ScreenTag getTag() {
-    return this.tag;
+    SCREENS.put(id, newScreen);
+    return newScreen;
   }
 
   public static void register() {
     GameScreenRegistry registry = Laby.references().gameScreenRegistry();
-    for (OptiFineScreen screen : VALUES) {
+    for (var screen : SCREENS.values()) {
       registry.register(screen);
     }
   }
