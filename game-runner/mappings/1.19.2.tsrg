@@ -1,0 +1,2 @@
+net/optifine/gui/GuiSlot net/optifine/gui/GuiSlot
+	render (Lcom/mojang/blaze3d/vertex/PoseStack;IIF)V a

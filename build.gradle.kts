@@ -133,6 +133,11 @@ fun configureRun(provider: VersionProvider, gameVersion: String) {
         }
 
         minVersion = mixinMinVersion
+
+        val versionMappings = file("./game-runner/mappings/").resolve("$gameVersion.tsrg")
+        if (versionMappings.exists()) {
+            extraMappings.add(versionMappings)
+        }
         extraMappings.add(file("./game-runner/mappings/shared.tsrg"))
     }
 }
