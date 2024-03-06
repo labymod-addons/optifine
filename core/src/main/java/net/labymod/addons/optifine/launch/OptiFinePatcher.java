@@ -17,6 +17,7 @@
 package net.labymod.addons.optifine.launch;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,17 +29,27 @@ import net.labymod.addons.optifine.launch.patches.OptiFineShadersPatcher;
 import net.labymod.addons.optifine.launch.patches.OptiFineTransformerPatcher;
 import net.labymod.addons.optifine.launch.patches.OptiFineWidgetIdentifierPatcher;
 import net.labymod.addons.optifine.util.PatchApplierClassEntryTransformer;
+import net.labymod.api.util.io.IOUtil;
 import net.labymod.api.util.io.zip.ZipTransformer;
+import net.labymod.api.util.logging.Logging;
 
 public class OptiFinePatcher {
 
+  private static final Logging LOGGER = Logging.getLogger();
+  private static final int UNKNOWN_VERSION = 0;
+  private static final int VERSION = 1;
+  private static final int MAX_TRIES = 3;
   private final Map<String, List<Patcher>> patchers;
+
+
+  private int tries;
 
   public OptiFinePatcher() {
     this.patchers = new HashMap<>();
 
     this.registerPatcher("optifine/OptiFineClassTransformer", new OptiFineTransformerPatcher());
-    this.registerPatcher("net/optifine/shaders/gui/GuiButtonDownloadShaders", new OptiFineShaderDownloadButtonPatcher());
+    this.registerPatcher("net/optifine/shaders/gui/GuiButtonDownloadShaders",
+        new OptiFineShaderDownloadButtonPatcher());
     this.registerPatcher("net/optifine/gui/GuiButtonOF", new OptiFineWidgetIdentifierPatcher());
     this.registerPatcher("net/optifine/shaders/Shaders", new OptiFineShadersPatcher());
   }
@@ -54,11 +65,46 @@ public class OptiFinePatcher {
   public Path patch(OptiFineVersion optiFineVersion, Path path) throws IOException {
     Path directory = path.getParent();
     Path patchedJar = directory.resolve(optiFineVersion.getQualifiedJarName() + "-PATCHED.jar");
+    Path versionPath = directory.resolve(optiFineVersion.getQualifiedJarName() + ".version");
 
-    ZipTransformer transformer = ZipTransformer.createDefault(path, patchedJar);
-    transformer.addTransformer(new PatchApplierClassEntryTransformer(this));
-    transformer.transform();
+    int currentVersion = this.getVersion(versionPath);
+    boolean needsTransformation = currentVersion < VERSION;
+
+    if (IOUtil.isCorrupted(patchedJar) || needsTransformation) {
+      LOGGER.info("Patching " + patchedJar);
+      ZipTransformer transformer = ZipTransformer.createDefault(path, patchedJar);
+      transformer.addTransformer(new PatchApplierClassEntryTransformer(this));
+      transformer.transform();
+      try {
+        Files.writeString(versionPath, String.valueOf(VERSION));
+      } catch (IOException ignored) {
+
+      }
+      LOGGER.info("Patched " + patchedJar);
+    }
+
+    if (IOUtil.isCorrupted(patchedJar)) {
+      this.tries++;
+      if (this.tries > MAX_TRIES) {
+        throw new IOException("Too many tries");
+      }
+
+      LOGGER.warn("Failed to patch {} (Tries: {}/{})", patchedJar, this.tries, MAX_TRIES);
+      return this.patch(optiFineVersion, patchedJar);
+    }
 
     return patchedJar;
+  }
+
+  private int getVersion(Path file) {
+    if (!Files.exists(file)) {
+      return UNKNOWN_VERSION;
+    }
+
+    try {
+      return Integer.parseInt(Files.readString(file));
+    } catch (IOException | NumberFormatException exception) {
+      return UNKNOWN_VERSION;
+    }
   }
 }
