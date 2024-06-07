@@ -38,7 +38,8 @@ labyMod {
                 "1.19.4",
                 "1.20.1",
                 "1.20.2",
-                "1.20.4"
+                "1.20.4",
+                "1.20.6"
         ) { version, provider ->
             configureRun(provider, version)
             provider.applyOptiFine(version, true)
@@ -119,7 +120,7 @@ fun configureRun(provider: VersionProvider, gameVersion: String) {
         args("--addon-dev-environment", "true")
     }
 
-    provider.javaVersion = JavaVersion.VERSION_17
+    provider.javaVersion = JavaVersion.VERSION_21
 
     provider.mixin {
         val mixinMinVersion = when (gameVersion) {
