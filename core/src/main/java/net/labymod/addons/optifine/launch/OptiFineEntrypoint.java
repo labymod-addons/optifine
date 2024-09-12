@@ -34,6 +34,7 @@ import net.labymod.api.models.version.Version;
 import net.labymod.api.thirdparty.optifine.OptiFine;
 import net.labymod.api.util.io.IOUtil;
 import net.labymod.api.util.version.SemanticVersion;
+import net.labymod.core.loader.DefaultLabyModLoader;
 import net.labymod.core.util.classpath.ClasspathUtil;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -122,6 +123,10 @@ public class OptiFineEntrypoint implements Entrypoint {
           TransformerPhase.PRE,
           "net.labymod.addons.optifine.launch.transformer.GLXTransformer"
       );
+
+      if (!DefaultLabyModLoader.getInstance().isLabyModDevelopmentEnvironment()) {
+        platformClassloader.registerTransformer(TransformerPhase.PRE, "net.labymod.addons.optifine.launch.transformer.MixinOptiFineBufferSourceTransformer");
+      }
     }
 
     ClassLoader classloader = platformClassloader.getPlatformClassloader();
