@@ -1,0 +1,5 @@
+MD: fyk/getChildOptiFine (Ljava/lang/String;)Lfyk; fyk/getChild (Ljava/lang/String;)Lfyk;
+MD: fgr$a/valueSplitterOptiFine ()Lfgr$d$a; fgr$a/valueSplitter ()Lfgr$d$a;
+MD: fgr$a/valueSetterOptiFine ()Lfgr$d$a; fgr$a/valueSetter ()Lfgr$d$a;
+MD: gss/loadBlockModelOptiFine (Lakr;)Lggb; gss/loadBlockModel (Lakr;)Lggb;
+MD: fbm/putBulkDataOptiFine (Lfbi$a;Lgfw;[FFFFF[IIZ)V fbm/putBulkData (Lfbi$a;Lgfw;[FFFFF[IIZ)V

@@ -1,69 +1,51 @@
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
-import net.labymod.gradle.core.minecraft.provider.VersionProvider
+import net.labymod.labygradle.common.extension.model.GameVersion
+import net.labymod.labygradle.common.extension.model.labymod.ReleaseChannels
 import java.nio.file.Files
-import java.util.function.Supplier
 
 plugins {
-    id("java-library")
-    id("net.labymod.gradle")
-    id("net.labymod.gradle.addon")
+    id("net.labymod.labygradle")
+    id("net.labymod.labygradle.addon")
     id("org.cadixdev.licenser") version ("0.6.1")
 }
 
-group = "org.example"
-version = "1.0.0"
+val versions = providers.gradleProperty("net.labymod.minecraft-versions").get().split(";")
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+group = "org.example"
+version = providers.environmentVariable("VERSION").getOrElse("1.0.0")
 
 labyMod {
     defaultPackageName = "net.labymod.addons.optifine" //change this to your main package name (used by all modules)
+
+    minecraft {
+        registerVersion(versions.toTypedArray()) {
+            useOptiFine(true)
+
+            mixin {
+                val versionMappings = file("./game-runner/mappings/").resolve("$versionId.tsrg")
+                if (versionMappings.exists()) {
+                    extraMappings.add(versionMappings)
+                }
+                extraMappings.add(file("./game-runner/mappings/shared.tsrg"))
+            }
+
+            val file = file("./game-runner/src/${this.sourceSetName}/resources/optifine-${versionId}.accesswidener");
+            accessWidener.set(file)
+        }
+    }
 
     addonInfo {
         namespace = "optifine"
         displayName = "OptiFine"
         author = "sp614x"
-        version = System.getenv().getOrDefault("VERSION", "0.0.1")
-    }
-
-    minecraft {
-        registerVersions(
-                "1.8.9",
-                "1.12.2",
-                "1.16.5",
-                "1.17.1",
-                "1.18.2",
-                "1.19.2",
-                "1.19.3",
-                "1.19.4",
-                "1.20.1",
-                "1.20.2",
-                "1.20.4",
-                "1.20.6"
-        ) { version, provider ->
-            configureRun(provider, version)
-            provider.applyOptiFine(version, true)
-
-            provider.accessWidener = Supplier {
-                val sourceSetName = version.replace(".", "_").replace("-", "_")
-                file("./game-runner/src/v$sourceSetName/resources/optifine-$version.accesswidener")
-            }
-        }
-
-        subprojects.forEach {
-            if (it.name != "game-runner") {
-                filter(it.name)
-            }
-        }
-    }
-
-    addonDev {
-        productionRelease()
+        version = rootProject.version.toString()
+        releaseChannel = ReleaseChannels.INTERNAL
     }
 }
 
-fun VersionProvider.applyOptiFine(version: String, useOptiFine: Boolean) {
-    if (!useOptiFine) {
+fun GameVersion.useOptiFine(enabled: Boolean) {
+    if (!enabled) {
         return
     }
 
@@ -83,30 +65,25 @@ fun VersionProvider.applyOptiFine(version: String, useOptiFine: Boolean) {
     } else {
         versionManifest = gson.fromJson(extra.get("of-cache") as String, OptiVersionManifest::class.java)
     }
-    versionManifest.findVersion(version)?.apply {
-        optiFineVersion = this.ofVersion.trim()
+    versionManifest.findVersion(versionId)?.apply {
+        optiFineVersion.set(this.ofVersion.trim())
     }
 }
 
 subprojects {
-    plugins.apply("java-library")
-    plugins.apply("net.labymod.gradle")
-    plugins.apply("net.labymod.gradle.addon")
+    plugins.apply("net.labymod.labygradle")
+    plugins.apply("net.labymod.labygradle.addon")
     plugins.apply("org.cadixdev.licenser")
 
-    repositories {
-        maven("https://libraries.minecraft.net/")
-        maven("https://repo.spongepowered.org/repository/maven-public/")
-        mavenLocal()
-    }
+    group = rootProject.group
+    version = rootProject.version
 
     license {
         header(rootProject.file("gradle/LICENSE-HEADER.txt"))
         newLine.set(true)
     }
 }
-
-
+/*
 fun configureRun(provider: VersionProvider, gameVersion: String) {
     provider.runConfiguration {
         mainClass = "net.minecraft.launchwrapper.Launch"
@@ -141,7 +118,7 @@ fun configureRun(provider: VersionProvider, gameVersion: String) {
         }
         extraMappings.add(file("./game-runner/mappings/shared.tsrg"))
     }
-}
+}*/
 
 data class OptiVersionManifest(val versions: List<OptiFineVersion>) {
 

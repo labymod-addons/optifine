@@ -37,7 +37,7 @@ public class OptiFinePatcher {
 
   private static final Logging LOGGER = Logging.getLogger();
   private static final int UNKNOWN_VERSION = 0;
-  private static final int VERSION = 1;
+  private static final int VERSION = 2;
   private static final int MAX_TRIES = 3;
   private final Map<String, List<Patcher>> patchers;
 

@@ -38,15 +38,17 @@ public class OptiFineTransformerPatcher implements Patcher {
   public void patch(ClassNode node) {
     for (MethodNode method : node.methods) {
       if (method.name.equals("<init>")) {
+
+        MethodInsnNode toUriInstruction = null;
         for (AbstractInsnNode instruction : method.instructions) {
-          if (instruction instanceof MethodInsnNode
+          if (instruction instanceof MethodInsnNode methodNode
               && instruction.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-            MethodInsnNode methodNode = (MethodInsnNode) instruction;
 
             if (!methodNode.name.equals("toURI")) {
               continue;
             }
 
+            toUriInstruction = methodNode;
             InsnList list = new InsnList();
             list.insert(
                 new MethodInsnNode(
@@ -61,6 +63,13 @@ public class OptiFineTransformerPatcher implements Patcher {
           }
 
         }
+
+        if (toUriInstruction != null) {
+          method.instructions.insert(toUriInstruction, new InsnNode(Opcodes.ACONST_NULL));
+          method.instructions.remove(toUriInstruction.getPrevious());
+          method.instructions.remove(toUriInstruction);
+        }
+
         continue;
       }
 

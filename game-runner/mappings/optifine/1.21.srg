@@ -1,0 +1,8 @@
+MD: fyk/getChildOptiFine (Ljava/lang/String;)Lfyk; fyk/getChild (Ljava/lang/String;)Lfyk;
+MD: fgr$e/codecOptiFine ()Lcom/mojang/serialization/Codec; fgr$e/codec ()Lcom/mojang/serialization/Codec;
+MD: fgr$a/valueSplitterOptiFine ()Lfgr$d$a; fgr$a/valueSplitter ()Lfgr$d$a;
+MD: fgr$a/valueSetterOptiFine ()Lfgr$d$a; fgr$a/valueSetter ()Lfgr$d$a;
+MD: fgr$a/codecOptiFine ()Lcom/mojang/serialization/Codec; fgr$a/codec ()Lcom/mojang/serialization/Codec;
+MD: fgr$h/codecOptiFine ()Lcom/mojang/serialization/Codec; fgr$h/codec ()Lcom/mojang/serialization/Codec;
+MD: gss/loadBlockModelOptiFine (Lakr;)Lggb; gss/loadBlockModel (Lakr;)Lggb;
+MD: fbm/putBulkDataOptiFine (Lfbi$a;Lgfw;[FFFFF[IIZ)V fbm/putBulkData (Lfbi$a;Lgfw;[FFFFF[IIZ)V

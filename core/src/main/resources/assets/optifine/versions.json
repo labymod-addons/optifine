@@ -49,6 +49,16 @@
       "game_version": "1.20.6",
       "of_version": "HD_U_I9_pre1",
       "preview": true
+    },
+    {
+      "game_version": "1.21",
+      "of_version": "HD_U_J1_pre9",
+      "preview": true
+    },
+    {
+      "game_version": "1.21.1",
+      "of_version": "HD_U_J1_pre10",
+      "preview": true
     }
   ]
 }
