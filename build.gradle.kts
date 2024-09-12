@@ -83,42 +83,6 @@ subprojects {
         newLine.set(true)
     }
 }
-/*
-fun configureRun(provider: VersionProvider, gameVersion: String) {
-    provider.runConfiguration {
-        mainClass = "net.minecraft.launchwrapper.Launch"
-        jvmArgs("-Dnet.labymod.running-version=${gameVersion}")
-        jvmArgs("-Dmixin.debug=true")
-        jvmArgs("-Dnet.labymod.debugging.all=true")
-        jvmArgs("-Dmixin.env.disableRefMap=true")
-
-        args("--tweakClass", "net.labymod.core.loader.vanilla.launchwrapper.LabyModLaunchWrapperTweaker")
-        args("--labymod-dev-environment", "true")
-        args("--addon-dev-environment", "true")
-    }
-
-    provider.javaVersion = JavaVersion.VERSION_21
-
-    provider.mixin {
-        val mixinMinVersion = when (gameVersion) {
-            "1.8.9", "1.12.2", "1.16.5" -> {
-                "0.6.6"
-            }
-
-            else -> {
-                "0.8.2"
-            }
-        }
-
-        minVersion = mixinMinVersion
-
-        val versionMappings = file("./game-runner/mappings/").resolve("$gameVersion.tsrg")
-        if (versionMappings.exists()) {
-            extraMappings.add(versionMappings)
-        }
-        extraMappings.add(file("./game-runner/mappings/shared.tsrg"))
-    }
-}*/
 
 data class OptiVersionManifest(val versions: List<OptiFineVersion>) {
 
