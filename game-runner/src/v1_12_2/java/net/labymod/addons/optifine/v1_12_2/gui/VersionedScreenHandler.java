@@ -20,10 +20,8 @@ import java.util.function.BiFunction;
 import javax.inject.Singleton;
 import net.labymod.addons.optifine.gui.OptiFineScreen;
 import net.labymod.addons.optifine.gui.ScreenHandler;
-import net.labymod.api.client.gui.screen.ScreenWrapper;
 import net.labymod.api.client.gui.screen.game.GameScreen;
 import net.labymod.api.models.Implements;
-import net.labymod.v1_12_2.client.gui.screen.VersionedScreenWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.GameSettings;
@@ -61,8 +59,4 @@ public class VersionedScreenHandler extends ScreenHandler<GuiScreen, GameSetting
     );
   }
 
-  @Override
-  public ScreenWrapper createScreen(GuiScreen screen) {
-    return new VersionedScreenWrapper(screen);
-  }
 }

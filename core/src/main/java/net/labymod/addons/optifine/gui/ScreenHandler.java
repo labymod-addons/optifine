@@ -29,6 +29,7 @@ import net.labymod.api.reference.annotation.Referenceable;
 public abstract class ScreenHandler<VANILLA_SCREEN, VANILLA_OPTIONS> {
 
   private static final ScreenService SCREEN_SERVICE = Laby.references().screenService();
+  private static final ScreenWrapper.Factory SCREEN_WRAPPER_FACTORY = Laby.references().screenWrapperFactory();
 
   public final void initialize() {
     OptiFineScreen.register();
@@ -49,6 +50,8 @@ public abstract class ScreenHandler<VANILLA_SCREEN, VANILLA_OPTIONS> {
     SCREEN_SERVICE.registerFactory(screen, () -> this.createScreen(screenFactory.get()));
   }
 
-  public abstract ScreenWrapper createScreen(VANILLA_SCREEN screen);
+  public ScreenWrapper createScreen(VANILLA_SCREEN screen) {
+    return SCREEN_WRAPPER_FACTORY.create(screen);
+  }
 
 }
