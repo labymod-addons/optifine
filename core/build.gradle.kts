@@ -5,6 +5,8 @@ dependencies {
     labyApi("core")
     labyApi("loader-vanilla-launchwrapper")
     api(project(":api"))
+
+    addonMavenDependency("com.fasterxml.jackson.core:jackson-core:2.18.0")
 }
 
 labyModAnnotationProcessor {
