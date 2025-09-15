@@ -66,6 +66,11 @@
     {
       "game_version": "1.21.4",
       "of_version": "HD_U_J3"
+    },
+    {
+      "game_version": "1.21.8",
+      "of_version": "HD_U_J6_pre16",
+      "preview": true
     }
   ]
 }
