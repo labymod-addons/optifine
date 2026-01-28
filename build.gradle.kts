@@ -1,3 +1,4 @@
+import com.diffplug.spotless.LineEnding
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import net.labymod.labygradle.common.extension.model.GameVersion
@@ -7,7 +8,7 @@ import java.nio.file.Files
 plugins {
     id("net.labymod.labygradle")
     id("net.labymod.labygradle.addon")
-    id("org.cadixdev.licenser") version ("0.6.1")
+    id("com.diffplug.spotless") version ("8.0.0")
 }
 
 val versions = providers.gradleProperty("net.labymod.minecraft-versions").get().split(";")
@@ -31,7 +32,7 @@ labyMod {
             }
 
             val file = file("./game-runner/src/${this.sourceSetName}/resources/optifine-${versionId}.accesswidener");
-            accessWidener.set(file)
+            accessWidener(file)
         }
     }
 
@@ -73,14 +74,17 @@ fun GameVersion.useOptiFine(enabled: Boolean) {
 subprojects {
     plugins.apply("net.labymod.labygradle")
     plugins.apply("net.labymod.labygradle.addon")
-    plugins.apply("org.cadixdev.licenser")
+    plugins.apply("com.diffplug.spotless")
 
     group = rootProject.group
     version = rootProject.version
 
-    license {
-        header(rootProject.file("gradle/LICENSE-HEADER.txt"))
-        newLine.set(true)
+    spotless {
+        lineEndings = LineEnding.UNIX
+
+        java {
+            licenseHeaderFile(rootProject.file("gradle/LICENSE-HEADER.txt"))
+        }
     }
 }
 
