@@ -33,6 +33,7 @@ import net.labymod.api.models.version.Version;
 import net.labymod.api.thirdparty.optifine.OptiFine;
 import net.labymod.api.util.io.IOUtil;
 import net.labymod.api.util.version.SemanticVersion;
+import net.labymod.api.util.version.serial.VersionDeserializer;
 import net.labymod.core.loader.DefaultLabyModLoader;
 import net.labymod.core.util.classpath.ClasspathUtil;
 
@@ -40,7 +41,7 @@ import net.labymod.core.util.classpath.ClasspathUtil;
 @AddonEntryPoint
 public class OptiFineEntrypoint implements Entrypoint {
 
-  private static final Version LEGACY_VERSION = new SemanticVersion("1.16.5");
+  private static final Version LEGACY_VERSION = VersionDeserializer.from("1.16.5");
 
   private static URI optifineUri;
   private static Version version;
