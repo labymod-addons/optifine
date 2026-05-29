@@ -33,7 +33,6 @@ import net.labymod.api.util.version.serial.VersionDeserializer;
 import net.labymod.core.addon.DefaultAddonService;
 import net.labymod.core.loader.DefaultLabyModLoader;
 
-@SuppressWarnings("UnstableApiUsage")
 @AddonEntryPoint
 public class OptiFineEntrypoint implements Entrypoint {
 
@@ -91,13 +90,6 @@ public class OptiFineEntrypoint implements Entrypoint {
     optifineUri = preparedJar.toUri();
 
     platformClassloader.addPath(preparedJar);
-
-    if (version.equals(VERSION_1_16_5)) {
-      platformClassloader.registerTransformer(
-          TransformerPhase.PRE,
-          "net.labymod.addons.optifine.launch.transformer.GLXTransformer"
-      );
-    }
 
     platformClassloader.registerTransformer(
         TransformerPhase.PRE,

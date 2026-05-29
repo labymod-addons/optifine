@@ -43,7 +43,7 @@ public class RemapStage implements PreparationStage {
   @Override
   public Path run(PreparationContext context, Path input) throws OptiFineException {
     Path output = context.scratch("remapped.jar");
-    MappingProvider provider = OptiFineMappingProvider.resolve(context.gameVersion());
+    MappingProvider provider = OptiFineMappingProvider.resolve();
     try {
       JarRemapper remapper = MappingService.instance()
           .jarRemapper(provider)

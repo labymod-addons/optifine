@@ -36,6 +36,7 @@ import net.labymod.addons.optifine.launch.prepare.PreparationPipeline;
 import net.labymod.addons.optifine.launch.prepare.PreparationStage;
 import net.labymod.addons.optifine.launch.prepare.stage.AsmPatchStage;
 import net.labymod.addons.optifine.launch.prepare.stage.ForgeStripStage;
+import net.labymod.addons.optifine.launch.prepare.stage.OverlayRenameStage;
 import net.labymod.addons.optifine.launch.prepare.stage.RemapStage;
 import net.labymod.addons.optifine.launch.prepare.stage.StripStage;
 import net.labymod.addons.optifine.launch.prepare.stage.XdeltaStage;
@@ -53,7 +54,7 @@ public class OptiFinePatcher {
   private static final Logging LOGGER = Logging.getLogger();
 
   // Bump when the pipeline logic changes in a way that invalidates already-prepared jars.
-  private static final int REMAP_VERSION = 2;
+  private static final int REMAP_VERSION = 3;
 
   private final Map<String, List<Patcher>> patchers;
 
@@ -112,6 +113,7 @@ public class OptiFinePatcher {
     stages.add(new AsmPatchStage(this));
     stages.add(new XdeltaStage());
     stages.add(new StripStage());
+    stages.add(new OverlayRenameStage());
     stages.add(new RemapStage());
     if (stripForge) {
       stages.add(new ForgeStripStage());
