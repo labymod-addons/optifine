@@ -1,7 +1,7 @@
 rootProject.name = "optifine"
 
 pluginManagement {
-    val labyGradlePluginVersion = "0.6.0"
+    val labyGradlePluginVersion = "0.7.0-SNAPSHOT"
     buildscript {
         repositories {
             maven("https://dist.labymod.net/api/v1/maven/release/")

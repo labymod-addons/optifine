@@ -15,7 +15,7 @@
 */
 package net.labymod.addons.optifine.handler.download;
 
-import java.io.IOException;
+import net.labymod.addons.optifine.exception.OptiFineException;
 import net.labymod.addons.optifine.handler.OptiFineVersion;
 import net.labymod.api.models.version.Version;
 
@@ -23,8 +23,7 @@ import net.labymod.api.models.version.Version;
 public class LabyModDownloadService extends DownloadService {
 
   @Override
-  public void download(Version version) throws IOException {
-
+  public void download(Version version) throws OptiFineException {
   }
 
   @Override

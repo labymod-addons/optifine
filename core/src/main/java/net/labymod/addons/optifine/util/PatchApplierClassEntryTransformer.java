@@ -24,6 +24,11 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
+/**
+ * Applies the registered {@link Patcher}s to matching classes. Entry stripping (searge and notch
+ * prefixes) is handled separately by the strip stage after the xdelta patch, so this transformer
+ * only patches and otherwise passes entries through untouched.
+ */
 public class PatchApplierClassEntryTransformer extends EntryTransformer<ClassEntry> {
 
   private final OptiFinePatcher optiFinePatcher;
@@ -35,29 +40,17 @@ public class PatchApplierClassEntryTransformer extends EntryTransformer<ClassEnt
 
   @Override
   public ClassEntry process(ClassEntry entry) {
-    // Discard all classes in the searge directory as they are not needed
-    if (entry.getName().startsWith("srg/")) {
-      return null;
+    List<Patcher> patches = this.optiFinePatcher.getPatchers().get(entry.getClassName());
+    if (patches == null) {
+      return entry;
     }
-
-    // Move all classes out of the notch directory
-    String name = entry.getName().replace("notch/", "");
-    String className = entry.getClassName().replace("notch/", "");
-
-    List<Patcher> patches = this.optiFinePatcher.getPatchers().get(className);
 
     byte[] patchedData = entry.getData();
-    if (patches != null) {
-      for (Patcher patcher : patches) {
-        patchedData = this.applyPatch(patchedData, patcher);
-      }
+    for (Patcher patcher : patches) {
+      patchedData = this.applyPatch(patchedData, patcher);
     }
 
-    return new ClassEntry(
-        name,
-        entry.getTime(),
-        patchedData
-    );
+    return new ClassEntry(entry.getName(), entry.getTime(), patchedData);
   }
 
   private byte[] applyPatch(byte[] classData, Patcher patcher) {

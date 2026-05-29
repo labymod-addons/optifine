@@ -15,6 +15,8 @@
 */
 package net.labymod.addons.optifine.handler.download;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,13 +25,10 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import net.labymod.addons.optifine.handler.OptiFineVersion;
+import net.labymod.addons.optifine.exception.OptiFineException;
 import net.labymod.addons.optifine.handler.OptiFineManifest;
-import net.labymod.api.loader.platform.PlatformClassloader;
-import net.labymod.api.loader.platform.PlatformEnvironment;
+import net.labymod.addons.optifine.handler.OptiFineVersion;
+import net.labymod.addons.optifine.launch.OptiFineStorage;
 import net.labymod.api.models.version.Version;
 import net.labymod.api.util.io.IOUtil;
 
@@ -37,6 +36,7 @@ public class OptiFineDownloadService extends DownloadService {
 
   private static final Gson GSON = new GsonBuilder().create();
   private static final String USER_AGENT = "OptifineHandler";
+  private static final int TIMEOUT_MILLIS = 15_000;
 
   private static final String BASE_URL = "https://optifine.net/";
   private static final String URL_PATH = "adloadx?f=%s.jar";
@@ -45,47 +45,25 @@ public class OptiFineDownloadService extends DownloadService {
   private OptiFineVersion optiFineVersion;
 
   @Override
-  public void download(Version version) throws IOException {
+  public void download(Version version) throws OptiFineException {
     String gameVersion = version.toString();
 
-    URL url = this.getClass().getClassLoader().getResource("assets/optifine/versions.json");
-    if (url == null) {
-      throw new IOException("OptiFine manifest file not found");
-    }
-
-    OptiFineManifest manifest;
-    try (Reader reader = new InputStreamReader(url.openStream())) {
-      manifest = GSON.fromJson(reader, OptiFineManifest.class);
-    } catch (IOException exception) {
-      throw new IOException("Failed to read OptiFine manifest file");
-    }
-
+    OptiFineManifest manifest = this.loadManifest();
     this.optiFineVersion = manifest.findVersion(gameVersion);
-
     if (this.optiFineVersion == null) {
-      throw new IOException(
-          "No Optifine version was found for this specified version " + gameVersion);
+      throw new OptiFineException("No OptiFine version is available for Minecraft " + gameVersion);
     }
 
-    this.optifineJarPath = Paths.get(
-        String.format(
-            "labymod-neo/optifine/%s/%s.jar",
-            gameVersion,
-            this.optiFineVersion.getQualifiedJarName()
-        )
-    );
+    String qualifiedName = this.optiFineVersion.getQualifiedJarName();
+    this.optifineJarPath = OptiFineStorage.directory(gameVersion).resolve(qualifiedName + ".jar");
 
-    gameVersion = this.optiFineVersion.getQualifiedJarName();
+    if (Files.exists(this.optifineJarPath) && !IOUtil.isCorrupted(this.optifineJarPath)) {
+      return;
+    }
 
-    this.download(
-        String.format(
-            URL_PATH,
-            gameVersion
-        ),
-        String.format(
-            FOLLOW,
-            gameVersion.replace(".", "\\.")
-        )
+    this.downloadJar(
+        String.format(URL_PATH, qualifiedName),
+        String.format(FOLLOW, qualifiedName.replace(".", "\\."))
     );
   }
 
@@ -94,43 +72,77 @@ public class OptiFineDownloadService extends DownloadService {
     return this.optiFineVersion;
   }
 
-  private void download(String urlPath, String follow) throws IOException {
-    if (Files.exists(this.optifineJarPath)) {
-      return;
+  private OptiFineManifest loadManifest() throws OptiFineException {
+    URL url = this.getClass().getClassLoader().getResource("assets/optifine/versions.json");
+    if (url == null) {
+      throw new OptiFineException("OptiFine manifest file not found");
     }
 
-    HttpURLConnection connection = this.prepareConnection(BASE_URL + urlPath);
+    try (Reader reader = new InputStreamReader(url.openStream())) {
+      return GSON.fromJson(reader, OptiFineManifest.class);
+    } catch (IOException exception) {
+      throw new OptiFineException("Failed to read OptiFine manifest file", exception);
+    }
+  }
 
-    if (connection.getResponseCode() / 100 != 2) {
-      return;
+  private void downloadJar(String urlPath, String follow) throws OptiFineException {
+    try {
+      HttpURLConnection connection = this.prepareConnection(BASE_URL + urlPath);
+      int responseCode = connection.getResponseCode();
+      if (responseCode / 100 != 2) {
+        throw new OptiFineException("OptiFine page request failed with HTTP status " + responseCode);
+      }
+
+      String webContent;
+      try (InputStream inputStream = connection.getInputStream()) {
+        webContent = IOUtil.toString(inputStream);
+      }
+
+      String relativeLink = this.extractDownloadLink(webContent, follow);
+      if (relativeLink == null) {
+        throw new OptiFineException(
+            "Failed to locate the OptiFine download link (optifine.net layout changed?)"
+        );
+      }
+
+      Files.createDirectories(this.optifineJarPath.getParent());
+      byte[] jarBytes;
+      try (InputStream downloadStream = this.prepareConnection(BASE_URL + relativeLink).getInputStream()) {
+        jarBytes = IOUtil.readBytes(downloadStream);
+      }
+      Files.write(this.optifineJarPath, jarBytes);
+    } catch (IOException exception) {
+      throw new OptiFineException("Failed to download OptiFine jar", exception);
     }
 
-    InputStream inputStream = connection.getInputStream();
+    if (IOUtil.isCorrupted(this.optifineJarPath)) {
+      throw new OptiFineException("Downloaded OptiFine jar is corrupted or not a valid archive");
+    }
+  }
 
-    String webContent = IOUtil.toString(inputStream);
-
+  private String extractDownloadLink(String webContent, String follow) {
     for (String content : webContent.split(System.lineSeparator())) {
       if (!content.matches(follow)) {
         continue;
       }
 
-      int firstIndex = content.indexOf("'");
-      int secondIndex = content.indexOf("'", firstIndex + 1);
-      String relativeLink = content.substring(firstIndex + 1, secondIndex);
-      String absoluteLink = BASE_URL + relativeLink;
-      Files.createDirectories(this.optifineJarPath.getParent());
-      Files.write(
-          this.optifineJarPath,
-          IOUtil.readBytes(this.prepareConnection(absoluteLink).getInputStream())
-      );
-      break;
+      int firstIndex = content.indexOf('\'');
+      int secondIndex = content.indexOf('\'', firstIndex + 1);
+      if (firstIndex < 0 || secondIndex < 0) {
+        continue;
+      }
+
+      return content.substring(firstIndex + 1, secondIndex);
     }
+
+    return null;
   }
 
   private HttpURLConnection prepareConnection(String url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection(Proxy.NO_PROXY);
     connection.setRequestProperty("User-Agent", USER_AGENT);
+    connection.setConnectTimeout(TIMEOUT_MILLIS);
+    connection.setReadTimeout(TIMEOUT_MILLIS);
     return connection;
   }
 }
-

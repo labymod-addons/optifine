@@ -14,6 +14,13 @@ labyModAnnotationProcessor {
 }
 
 tasks {
+    processResources {
+        from(rootProject.file("game-runner/mappings/optifine")) {
+            into("assets/optifine/mappings")
+            include("*.srg")
+        }
+    }
+
     jar {
         exclude("net/optifine/**")
         duplicatesStrategy = DuplicatesStrategy.INCLUDE

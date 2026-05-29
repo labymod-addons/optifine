@@ -15,7 +15,7 @@
 */
 package net.labymod.addons.optifine.handler;
 
-import java.io.IOException;
+import net.labymod.addons.optifine.exception.OptiFineException;
 import net.labymod.addons.optifine.handler.download.DownloadService;
 import net.labymod.addons.optifine.handler.download.LabyModDownloadService;
 import net.labymod.addons.optifine.handler.download.OptiFineDownloadService;
@@ -26,7 +26,7 @@ public class OptifineDownloader {
   private boolean shouldUseFallback = false;
   private DownloadService downloadService;
 
-  public void download(Version version) throws IOException {
+  public void download(Version version) throws OptiFineException {
     this.downloadService =
         this.shouldUseFallback ?
             new LabyModDownloadService() :

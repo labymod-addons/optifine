@@ -13,22 +13,23 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-package net.labymod.addons.optifine.handler.download;
+package net.labymod.addons.optifine.launch.remap;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
-import net.labymod.addons.optifine.exception.OptiFineException;
-import net.labymod.addons.optifine.handler.OptiFineVersion;
-import net.labymod.api.models.version.Version;
 
-public abstract class DownloadService {
+public class IsolatedClassLoader extends URLClassLoader {
 
-  protected Path optifineJarPath;
-
-  public abstract void download(Version version) throws OptiFineException;
-
-  public Path getOptifineJarPath() {
-    return this.optifineJarPath;
+  public IsolatedClassLoader() {
+    super(new URL[0], IsolatedClassLoader.class.getClassLoader().getParent());
   }
 
-  public abstract OptiFineVersion currentOptiFineVersion();
+  public void addPath(Path path) {
+    try {
+      this.addURL(path.toUri().toURL());
+    } catch (MalformedURLException ignored) {
+    }
+  }
 }

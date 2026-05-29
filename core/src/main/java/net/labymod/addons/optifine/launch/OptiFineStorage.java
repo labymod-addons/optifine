@@ -13,22 +13,25 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-package net.labymod.addons.optifine.handler.download;
+package net.labymod.addons.optifine.launch;
 
 import java.nio.file.Path;
-import net.labymod.addons.optifine.exception.OptiFineException;
-import net.labymod.addons.optifine.handler.OptiFineVersion;
-import net.labymod.api.models.version.Version;
+import net.labymod.api.Constants;
 
-public abstract class DownloadService {
+/**
+ * Single source of truth for where OptiFine artifacts live, mirroring LabyMod's own client-jar
+ * layout ({@code LABYMOD_DIRECTORY/client-jars/<version>/}). Shared by the downloader and the
+ * patcher so both always resolve the same directory regardless of the process working directory.
+ */
+public final class OptiFineStorage {
 
-  protected Path optifineJarPath;
-
-  public abstract void download(Version version) throws OptiFineException;
-
-  public Path getOptifineJarPath() {
-    return this.optifineJarPath;
+  private OptiFineStorage() {
   }
 
-  public abstract OptiFineVersion currentOptiFineVersion();
+  public static Path directory(String gameVersion) {
+    return Constants.Files.LABYMOD_DIRECTORY
+        .resolve("client-jars")
+        .resolve(gameVersion)
+        .resolve("optifine");
+  }
 }

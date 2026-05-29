@@ -13,22 +13,18 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-package net.labymod.addons.optifine.handler.download;
+package net.labymod.addons.optifine.launch.prepare;
 
 import java.nio.file.Path;
 import net.labymod.addons.optifine.exception.OptiFineException;
-import net.labymod.addons.optifine.handler.OptiFineVersion;
-import net.labymod.api.models.version.Version;
 
-public abstract class DownloadService {
+/**
+ * A single, discrete step of the OptiFine install pipeline. A stage receives the previous stage's
+ * output jar and returns the path of the jar it produced.
+ */
+public interface PreparationStage {
 
-  protected Path optifineJarPath;
+  String name();
 
-  public abstract void download(Version version) throws OptiFineException;
-
-  public Path getOptifineJarPath() {
-    return this.optifineJarPath;
-  }
-
-  public abstract OptiFineVersion currentOptiFineVersion();
+  Path run(PreparationContext context, Path input) throws OptiFineException;
 }

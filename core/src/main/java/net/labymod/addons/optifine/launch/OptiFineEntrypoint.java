@@ -15,136 +15,82 @@
 */
 package net.labymod.addons.optifine.launch;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import net.labymod.addons.optifine.exception.OptiFineException;
 import net.labymod.addons.optifine.handler.OptiFineVersion;
 import net.labymod.addons.optifine.handler.OptifineDownloader;
+import net.labymod.addons.optifine.handler.download.DownloadService;
 import net.labymod.api.addon.entrypoint.Entrypoint;
 import net.labymod.api.loader.platform.PlatformClassloader;
 import net.labymod.api.loader.platform.PlatformClassloader.TransformerPhase;
 import net.labymod.api.loader.platform.PlatformEnvironment;
 import net.labymod.api.models.addon.annotation.AddonEntryPoint;
 import net.labymod.api.models.version.Version;
-import net.labymod.api.thirdparty.optifine.OptiFine;
 import net.labymod.api.util.io.IOUtil;
-import net.labymod.api.util.version.SemanticVersion;
 import net.labymod.api.util.version.serial.VersionDeserializer;
 import net.labymod.core.loader.DefaultLabyModLoader;
-import net.labymod.core.util.classpath.ClasspathUtil;
 
 @SuppressWarnings("UnstableApiUsage")
 @AddonEntryPoint
 public class OptiFineEntrypoint implements Entrypoint {
 
-  private static final Version LEGACY_VERSION = VersionDeserializer.from("1.16.5");
+  // GLX and the OptiFine buffer-source mixin are 1.16.5-era concerns and fire only on exactly 1.16.5.
+  private static final Version VERSION_1_16_5 = VersionDeserializer.from("1.16.5");
 
   private static URI optifineUri;
-  private static Version version;
 
   public static URI optifineUri() {
     return optifineUri;
   }
 
-  public static byte[] readDev(String name, ZipFile file) {
-    if (file != null) {
-
-      if (version != null && version.isLowerThan(LEGACY_VERSION)) {
-        boolean addNotchPrefix = name.startsWith("net.minecraft");
-        name = name.replace(".class", "");
-        if (addNotchPrefix) {
-          name = "notch/" + name.replace(".", "/");
-        }
-        name += ".class";
-      }
-
-      ZipEntry entry = file.getEntry(name);
-      if (entry == null) {
-        return null;
-      }
-      try (InputStream stream = file.getInputStream(entry)) {
-        return IOUtil.readBytes(stream);
-      } catch (IOException exception) {
-        return null;
-      }
-    }
-    return null;
-  }
-
   @Override
   public void initialize(Version version) {
-    OptiFineEntrypoint.version = version;
-    OptiFinePatcher patcher = new OptiFinePatcher();
+    try {
+      this.prepareAndRegister(version);
+    } catch (OptiFineException exception) {
+      // Thrown before the client/UI exists: re-throwing makes the platform log the cause and cleanly
+      // unload the addon rather than crashing the game.
+      throw new RuntimeException("Failed to initialize OptiFine: " + exception.getMessage(), exception);
+    }
+  }
 
+  private void prepareAndRegister(Version version) throws OptiFineException {
     PlatformClassloader platformClassloader = PlatformEnvironment.getPlatformClassloader();
 
-    // Download the specified optifine version
     OptifineDownloader optifineDownloader = new OptifineDownloader();
-    try {
-      optifineDownloader.download(version);
-    } catch (IOException exception) {
-      throw new RuntimeException("Failed to download OptiFine jar", exception);
+    optifineDownloader.download(version);
+
+    DownloadService downloadService = optifineDownloader.getDownloadService();
+    Path rawOptiFineJar = downloadService.getOptifineJarPath();
+    if (IOUtil.isCorrupted(rawOptiFineJar)) {
+      throw new OptiFineException("Downloaded OptiFine jar is corrupted");
     }
 
-    Path optifineJarPath = optifineDownloader.getDownloadService().getOptifineJarPath();
-    if (IOUtil.isCorrupted(optifineJarPath)) {
-      throw new RuntimeException("OptiFine jar is corrupted");
+    Path obfuscatedClientJar = PlatformEnvironment.getObfuscatedJarPath();
+    if (obfuscatedClientJar == null) {
+      throw new OptiFineException("Obfuscated Minecraft client jar is not available");
     }
 
-    OptiFineVersion optiFineVersion = optifineDownloader
-        .getDownloadService()
-        .currentOptiFineVersion();
-    try {
-      optifineJarPath = patcher.patch(optiFineVersion, optifineJarPath);
-    } catch (IOException exception) {
-      throw new RuntimeException("Failed to patch OptiFine jar", exception);
-    }
-    optifineUri = optifineJarPath.toUri();
+    OptiFineVersion optiFineVersion = downloadService.currentOptiFineVersion();
+    OptiFinePatcher patcher = new OptiFinePatcher();
+    Path preparedJar = patcher.prepare(
+        optiFineVersion,
+        rawOptiFineJar,
+        obfuscatedClientJar,
+        version.toString()
+    );
+    optifineUri = preparedJar.toUri();
 
-    // Add the optifine jar to the classpath
-    platformClassloader.addPath(optifineJarPath);
+    platformClassloader.addPath(preparedJar);
 
-    List<String> list;
-    try {
-      list = ClasspathUtil.getJarEntryNames(
-          optifineJarPath.toAbsolutePath().toString(),
-          "optifine"
-      );
-    } catch (IOException exception) {
-      throw new RuntimeException("Failed to read OptiFine jar entries", exception);
-    }
-
-    if (version.equals(LEGACY_VERSION)) {
+    if (version.equals(VERSION_1_16_5)) {
       platformClassloader.registerTransformer(
           TransformerPhase.PRE,
           "net.labymod.addons.optifine.launch.transformer.GLXTransformer"
       );
-
-      if (!DefaultLabyModLoader.getInstance().isLabyModDevelopmentEnvironment()) {
-        platformClassloader.registerTransformer(TransformerPhase.PRE, "net.labymod.addons.optifine.launch.transformer.MixinOptiFineBufferSourceTransformer");
-      }
     }
 
-    ClassLoader classloader = platformClassloader.getPlatformClassloader();
-    // Preload all classes
-    for (String s : list) {
-      if (!s.endsWith(".class")) {
-        continue;
-      }
-      s = s.replace("/", ".");
-      s = s.substring(0, s.length() - ".class".length());
-      try {
-        classloader.loadClass(s);
-      } catch (Throwable throwable) {
-        // throwable.printStackTrace();
-      }
-    }
-
-    // Register the optifine class transformer
     platformClassloader.registerTransformer(
         TransformerPhase.PRE,
         "net.labymod.addons.optifine.launch.transformer.WrappedOptiFineTransformer"

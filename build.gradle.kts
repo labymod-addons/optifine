@@ -2,6 +2,7 @@ import com.diffplug.spotless.LineEnding
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import net.labymod.labygradle.common.extension.model.GameVersion
+import net.labymod.labygradle.common.extension.model.labymod.ReleaseChannel
 import net.labymod.labygradle.common.extension.model.labymod.ReleaseChannels
 import java.nio.file.Files
 
@@ -23,14 +24,6 @@ labyMod {
         registerVersion(versions.toTypedArray()) {
             useOptiFine(true)
 
-            mixin {
-                val versionMappings = file("./game-runner/mappings/").resolve("$versionId.tsrg")
-                if (versionMappings.exists()) {
-                    extraMappings.add(versionMappings)
-                }
-                extraMappings.add(file("./game-runner/mappings/shared.tsrg"))
-            }
-
             val file = file("./game-runner/src/${this.sourceSetName}/resources/optifine-${versionId}.accesswidener");
             accessWidener(file)
         }
@@ -41,7 +34,7 @@ labyMod {
         displayName = "OptiFine"
         author = "sp614x"
         version = rootProject.version.toString()
-        releaseChannel = ReleaseChannels.PRODUCTION
+        releaseChannel = ReleaseChannel.create("internal_next")
     }
 }
 
