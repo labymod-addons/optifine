@@ -21,6 +21,7 @@ import net.labymod.addons.optifine.exception.OptiFineException;
 import net.labymod.addons.optifine.handler.OptiFineVersion;
 import net.labymod.addons.optifine.handler.OptifineDownloader;
 import net.labymod.addons.optifine.handler.download.DownloadService;
+import net.labymod.api.Laby;
 import net.labymod.api.addon.entrypoint.Entrypoint;
 import net.labymod.api.loader.platform.PlatformClassloader;
 import net.labymod.api.loader.platform.PlatformClassloader.TransformerPhase;
@@ -29,6 +30,7 @@ import net.labymod.api.models.addon.annotation.AddonEntryPoint;
 import net.labymod.api.models.version.Version;
 import net.labymod.api.util.io.IOUtil;
 import net.labymod.api.util.version.serial.VersionDeserializer;
+import net.labymod.core.addon.DefaultAddonService;
 import net.labymod.core.loader.DefaultLabyModLoader;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -37,6 +39,10 @@ public class OptiFineEntrypoint implements Entrypoint {
 
   // GLX and the OptiFine buffer-source mixin are 1.16.5-era concerns and fire only on exactly 1.16.5.
   private static final Version VERSION_1_16_5 = VersionDeserializer.from("1.16.5");
+
+  // When LabyForge is present we run on Forge, which already provides the net.minecraftforge and
+  // javax classes OptiFine bundles for its standalone Forge build; those get stripped to avoid clashes.
+  private static final String FORGE_ADDON_NAMESPACE = "labyforge";
 
   private static URI optifineUri;
 
@@ -73,12 +79,14 @@ public class OptiFineEntrypoint implements Entrypoint {
     }
 
     OptiFineVersion optiFineVersion = downloadService.currentOptiFineVersion();
+    boolean stripForge = DefaultAddonService.getInstance().getAddon(FORGE_ADDON_NAMESPACE).isPresent();
     OptiFinePatcher patcher = new OptiFinePatcher();
     Path preparedJar = patcher.prepare(
         optiFineVersion,
         rawOptiFineJar,
         obfuscatedClientJar,
-        version.toString()
+        version.toString(),
+        stripForge
     );
     optifineUri = preparedJar.toUri();
 

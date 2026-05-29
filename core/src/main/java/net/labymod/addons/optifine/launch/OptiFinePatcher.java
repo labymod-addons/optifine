@@ -1,18 +1,18 @@
 /*
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation; either
-* version 2.1 of the License, or (at your option) any later version.
-*
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with this library; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package net.labymod.addons.optifine.launch;
 
 import java.io.IOException;
@@ -33,7 +33,9 @@ import net.labymod.addons.optifine.launch.patches.OptiFineShadersPatcher;
 import net.labymod.addons.optifine.launch.patches.OptiFineWidgetIdentifierPatcher;
 import net.labymod.addons.optifine.launch.prepare.PreparationContext;
 import net.labymod.addons.optifine.launch.prepare.PreparationPipeline;
+import net.labymod.addons.optifine.launch.prepare.PreparationStage;
 import net.labymod.addons.optifine.launch.prepare.stage.AsmPatchStage;
+import net.labymod.addons.optifine.launch.prepare.stage.ForgeStripStage;
 import net.labymod.addons.optifine.launch.prepare.stage.RemapStage;
 import net.labymod.addons.optifine.launch.prepare.stage.StripStage;
 import net.labymod.addons.optifine.launch.prepare.stage.XdeltaStage;
@@ -51,7 +53,7 @@ public class OptiFinePatcher {
   private static final Logging LOGGER = Logging.getLogger();
 
   // Bump when the pipeline logic changes in a way that invalidates already-prepared jars.
-  private static final int REMAP_VERSION = 1;
+  private static final int REMAP_VERSION = 2;
 
   private final Map<String, List<Patcher>> patchers;
 
@@ -75,14 +77,15 @@ public class OptiFinePatcher {
       OptiFineVersion optiFineVersion,
       Path rawOptiFineJar,
       Path obfuscatedClientJar,
-      String gameVersion
+      String gameVersion,
+      boolean stripForge
   ) throws OptiFineException {
     Path directory = OptiFineStorage.directory(gameVersion);
     String qualifiedName = optiFineVersion.getQualifiedJarName();
     Path destination = directory.resolve(qualifiedName + "-PATCHED.jar");
     Path checksumFile = directory.resolve(qualifiedName + "-PATCHED.jar.checksum");
 
-    String fingerprint = this.fingerprint(obfuscatedClientJar, rawOptiFineJar);
+    String fingerprint = this.fingerprint(obfuscatedClientJar, rawOptiFineJar, stripForge);
     if (this.isUpToDate(destination, checksumFile, fingerprint)) {
       LOGGER.info("Prepared OptiFine jar up to date, skipping ({})", destination);
       return destination;
@@ -93,7 +96,8 @@ public class OptiFinePatcher {
     try {
       Files.createDirectories(scratchDirectory);
     } catch (IOException exception) {
-      throw new OptiFineException("Failed to create OptiFine directory " + scratchDirectory, exception);
+      throw new OptiFineException("Failed to create OptiFine directory " + scratchDirectory,
+          exception);
     }
 
     LOGGER.info("Preparing OptiFine jar {}", destination);
@@ -104,12 +108,15 @@ public class OptiFinePatcher {
         optiFineVersion,
         scratchDirectory
     );
-    PreparationPipeline pipeline = new PreparationPipeline(List.of(
-        new AsmPatchStage(this),
-        new XdeltaStage(),
-        new StripStage(),
-        new RemapStage()
-    ));
+    List<PreparationStage> stages = new ArrayList<>();
+    stages.add(new AsmPatchStage(this));
+    stages.add(new XdeltaStage());
+    stages.add(new StripStage());
+    stages.add(new RemapStage());
+    if (stripForge) {
+      stages.add(new ForgeStripStage());
+    }
+    PreparationPipeline pipeline = new PreparationPipeline(stages);
 
     try {
       Path prepared = pipeline.run(context);
@@ -141,15 +148,29 @@ public class OptiFinePatcher {
     try {
       return fingerprint.equals(Files.readString(checksumFile));
     } catch (IOException exception) {
-      LOGGER.warn("Failed to read OptiFine checksum file {}, re-preparing", checksumFile, exception);
+      LOGGER.warn(
+          "Failed to read OptiFine checksum file {}, re-preparing",
+          checksumFile,
+          exception
+      );
       return false;
     }
   }
 
-  private String fingerprint(Path obfuscatedClientJar, Path rawOptiFineJar) throws OptiFineException {
+  private String fingerprint(
+      Path obfuscatedClientJar,
+      Path rawOptiFineJar,
+      boolean stripForge
+  ) throws OptiFineException {
     try (InputStream obfuscatedStream = Files.newInputStream(obfuscatedClientJar);
         InputStream optiFineStream = Files.newInputStream(rawOptiFineJar)) {
-      return REMAP_VERSION + ":" + HashUtil.md5Hex(obfuscatedStream) + ":" + HashUtil.md5Hex(optiFineStream);
+      return REMAP_VERSION
+          + ":"
+          + HashUtil.md5Hex(obfuscatedStream)
+          + ":"
+          + HashUtil.md5Hex(optiFineStream)
+          + ":"
+          + stripForge;
     } catch (IOException exception) {
       throw new OptiFineException("Failed to compute OptiFine cache fingerprint", exception);
     }
@@ -163,13 +184,15 @@ public class OptiFinePatcher {
     try {
       Files.walkFileTree(directory, new SimpleFileVisitor<>() {
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attributes)
+            throws IOException {
           Files.deleteIfExists(file);
           return FileVisitResult.CONTINUE;
         }
 
         @Override
-        public FileVisitResult postVisitDirectory(Path visited, IOException exception) throws IOException {
+        public FileVisitResult postVisitDirectory(Path visited, IOException exception)
+            throws IOException {
           Files.deleteIfExists(visited);
           return FileVisitResult.CONTINUE;
         }

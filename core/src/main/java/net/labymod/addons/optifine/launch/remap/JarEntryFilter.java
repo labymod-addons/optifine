@@ -32,6 +32,8 @@ public final class JarEntryFilter {
 
   private static final String NOTCH_PREFIX = "notch/";
   private static final String SRG_PREFIX = "srg/";
+  private static final String FORGE_PREFIX = "net/minecraftforge/";
+  private static final String JAVAX_PREFIX = "javax/";
 
   private JarEntryFilter() {
   }
@@ -48,6 +50,21 @@ public final class JarEntryFilter {
 
       if (name.startsWith(NOTCH_PREFIX)) {
         name = name.substring(NOTCH_PREFIX.length());
+      }
+
+      return name;
+    });
+  }
+
+  /**
+   * Drops the {@code net/minecraftforge/} and {@code javax/} packages OptiFine bundles for its
+   * standalone Forge build; every other entry is copied through unchanged. Used when LabyMod runs on
+   * Forge, where those classes already exist on the classpath and would clash with the prepared jar.
+   */
+  public static void stripForgePackages(Path source, Path destination) throws IOException {
+    rewrite(source, destination, name -> {
+      if (name.startsWith(FORGE_PREFIX) || name.startsWith(JAVAX_PREFIX)) {
+        return null;
       }
 
       return name;
