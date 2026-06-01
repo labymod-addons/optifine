@@ -72,6 +72,11 @@ subprojects {
     group = rootProject.group
     version = rootProject.version
 
+    extensions.configure<JavaPluginExtension> {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
     spotless {
         lineEndings = LineEnding.UNIX
 
