@@ -34,7 +34,7 @@ labyMod {
         displayName = "OptiFine"
         author = "sp614x"
         version = rootProject.version.toString()
-        releaseChannel = ReleaseChannel.create("internal_next")
+        releaseChannel = ReleaseChannels.SNAPSHOT
     }
 }
 
