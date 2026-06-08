@@ -21,13 +21,18 @@ import java.util.List;
 import java.util.Map;
 import net.labymod.addons.optifine.client.gfx.renderer.shadow.OptiFineShadowRenderPassContext;
 import net.labymod.addons.optifine.core.generated.DefaultReferenceStorage;
+import net.labymod.addons.optifine.launch.OptiFineEntrypoint;
 import net.labymod.api.Laby;
+import net.labymod.api.client.component.Component;
+import net.labymod.api.client.component.format.NamedTextColor;
 import net.labymod.api.client.gui.screen.widget.converter.MinecraftWidgetType;
 import net.labymod.api.client.gui.screen.widget.converter.WidgetConverterRegistry;
 import net.labymod.api.event.Subscribe;
 import net.labymod.api.event.addon.lifecycle.AddonPostEnableEvent;
+import net.labymod.api.event.client.gui.screen.ScreenDisplayEvent;
 import net.labymod.api.event.client.render.shader.ShaderPipelineContextEvent;
 import net.labymod.api.models.addon.annotation.AddonMain;
+import net.labymod.api.notification.Notification;
 import net.labymod.api.reference.ReferenceStorageAccessor;
 import net.labymod.api.reference.ReferenceStorageFinder;
 import net.labymod.api.util.logging.Logging;
@@ -40,6 +45,7 @@ public class OptiFineAddon {
   private static final String SHADER_GUI_PACKAGE_NAME = "net.optifine.shaders.gui";
   private final Map<MinecraftWidgetType, List<String>> widgets;
   private DefaultReferenceStorage referenceStorage;
+  private boolean loadFailureNotified;
 
   public OptiFineAddon() {
     this.widgets = new HashMap<>();
@@ -85,6 +91,10 @@ public class OptiFineAddon {
 
   @Subscribe
   public void onAddonPostEnable(AddonPostEnableEvent event) {
+    if (OptiFineEntrypoint.loadFailureReason() != null) {
+      // OptiFine isn't on the classpath this session; its GUI/shader classes can't be referenced.
+      return;
+    }
 
     if (this.referenceStorage != null) {
       this.referenceStorage.screenHandler().initialize();
@@ -113,9 +123,29 @@ public class OptiFineAddon {
 
   @Subscribe
   public void onShadowRenderPassContext(ShaderPipelineContextEvent event) {
+    if (OptiFineEntrypoint.loadFailureReason() != null) {
+      return;
+    }
+
     if (this.referenceStorage != null) {
       event.setShadowRenderPassContext(new OptiFineShadowRenderPassContext(this.referenceStorage.shaderAccessor()));
     }
+  }
+
+  @Subscribe
+  public void onScreenDisplay(ScreenDisplayEvent event) {
+    if (this.loadFailureNotified || OptiFineEntrypoint.loadFailureReason() == null) {
+      return;
+    }
+
+    // Surface the failure once, on the first screen (the title screen), where the notification overlay
+    // is present. Telling the user it's not an addon issue stops the pointless reinstall loop.
+    this.loadFailureNotified = true;
+    Notification.builder()
+        .title(Component.translatable("optifine.notifications.loadFailure.title", NamedTextColor.RED))
+        .text(Component.translatable("optifine.notifications.loadFailure.text"))
+        .duration(15_000L)
+        .buildAndPush();
   }
 
   private void registerWidgets(MinecraftWidgetType type, String packageName, String... classNames) {

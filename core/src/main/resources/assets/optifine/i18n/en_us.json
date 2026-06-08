@@ -1,0 +1,10 @@
+{
+  "optifine": {
+    "notifications": {
+      "loadFailure": {
+        "title": "OptiFine couldn't be loaded",
+        "text": "Couldn't download OptiFine from optifine.net. Reinstalling the addon won't help. Restart Minecraft to try again later."
+      }
+    }
+  }
+}

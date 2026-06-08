@@ -29,12 +29,15 @@ import net.labymod.api.loader.platform.PlatformEnvironment;
 import net.labymod.api.models.addon.annotation.AddonEntryPoint;
 import net.labymod.api.models.version.Version;
 import net.labymod.api.util.io.IOUtil;
+import net.labymod.api.util.logging.Logging;
 import net.labymod.api.util.version.serial.VersionDeserializer;
 import net.labymod.core.addon.DefaultAddonService;
 import net.labymod.core.loader.DefaultLabyModLoader;
 
 @AddonEntryPoint
 public class OptiFineEntrypoint implements Entrypoint {
+
+  private static final Logging LOGGER = Logging.getLogger();
 
   // GLX and the OptiFine buffer-source mixin are 1.16.5-era concerns and fire only on exactly 1.16.5.
   private static final Version VERSION_1_16_5 = VersionDeserializer.from("1.16.5");
@@ -43,10 +46,21 @@ public class OptiFineEntrypoint implements Entrypoint {
   // javax classes OptiFine bundles for its standalone Forge build; those get stripped to avoid clashes.
   private static final String FORGE_ADDON_NAMESPACE = "labyforge";
 
+  // Manual test toggle: set true to simulate a download/preparation failure without needing
+  // optifine.net to actually fail. Exercises the loaded-but-inactive path and the in-game notice.
+  private static final boolean SIMULATE_LOAD_FAILURE = false;
+
   private static URI optifineUri;
+  private static String loadFailureReason;
 
   public static URI optifineUri() {
     return optifineUri;
+  }
+
+  // Non-null when preparation failed this session; the addon stays loaded but inactive and surfaces
+  // this to the user in-game (see OptiFineAddon).
+  public static String loadFailureReason() {
+    return loadFailureReason;
   }
 
   @Override
@@ -54,13 +68,22 @@ public class OptiFineEntrypoint implements Entrypoint {
     try {
       this.prepareAndRegister(version);
     } catch (OptiFineException exception) {
-      // Thrown before the client/UI exists: re-throwing makes the platform log the cause and cleanly
-      // unload the addon rather than crashing the game.
-      throw new RuntimeException("Failed to initialize OptiFine: " + exception.getMessage(), exception);
+      // Don't re-throw: that would unload the whole addon and dump a stacktrace, which misleads users
+      // into reinstalling the addon. The usual cause (optifine.net down or returning 404) is external
+      // and transient, so we stay loaded-but-inactive and tell the user in-game instead.
+      loadFailureReason = exception.getMessage();
+      LOGGER.error(
+          "OptiFine could not be prepared; the addon stays loaded but inactive this session.",
+          exception
+      );
     }
   }
 
   private void prepareAndRegister(Version version) throws OptiFineException {
+    if (SIMULATE_LOAD_FAILURE) {
+      throw new OptiFineException("Simulated OptiFine load failure (SIMULATE_LOAD_FAILURE is enabled)");
+    }
+
     PlatformClassloader platformClassloader = PlatformEnvironment.getPlatformClassloader();
 
     OptifineDownloader optifineDownloader = new OptifineDownloader();
