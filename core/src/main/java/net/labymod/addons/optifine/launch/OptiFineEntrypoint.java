@@ -118,5 +118,29 @@ public class OptiFineEntrypoint implements Entrypoint {
         TransformerPhase.PRE,
         "net.labymod.addons.optifine.launch.transformer.WrappedOptiFineTransformer"
     );
+
+    this.initializeOptiFineTransformer(platformClassloader);
+  }
+
+  // Stock OptiFine constructs optifine.OptiFineClassTransformer from its tweaker; the constructor
+  // publishes the static instance and registers itself with OptiFineResourceLocator, which
+  // OptiFine's Reflector-based resource loading expects at runtime. Its jar self-location is
+  // rewired to optifineUri() at prepare time (OptiFineTransformerPatcher), so optifineUri must be
+  // set before this runs.
+  private void initializeOptiFineTransformer(PlatformClassloader platformClassloader) {
+    try {
+      Class<?> transformerClass = Class.forName(
+          "optifine.OptiFineClassTransformer",
+          true,
+          platformClassloader.getPlatformClassloader()
+      );
+      transformerClass.getDeclaredConstructor().newInstance();
+      LOGGER.info("Initialized optifine.OptiFineClassTransformer against the prepared jar");
+    } catch (Throwable throwable) {
+      LOGGER.warn(
+          "Failed to initialize optifine.OptiFineClassTransformer; OptiFine internal resources stay unavailable",
+          throwable
+      );
+    }
   }
 }

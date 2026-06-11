@@ -31,6 +31,7 @@ import net.labymod.addons.optifine.exception.OptiFineException;
 import net.labymod.addons.optifine.handler.OptiFineVersion;
 import net.labymod.addons.optifine.launch.patches.OptiFineShaderDownloadButtonPatcher;
 import net.labymod.addons.optifine.launch.patches.OptiFineShadersPatcher;
+import net.labymod.addons.optifine.launch.patches.OptiFineTransformerPatcher;
 import net.labymod.addons.optifine.launch.patches.OptiFineWidgetIdentifierPatcher;
 import net.labymod.addons.optifine.launch.prepare.PreparationContext;
 import net.labymod.addons.optifine.launch.prepare.PreparationPipeline;
@@ -55,7 +56,7 @@ public class OptiFinePatcher {
   private static final Logging LOGGER = Logging.getLogger();
 
   // Bump when the pipeline logic changes in a way that invalidates already-prepared jars.
-  private static final int REMAP_VERSION = 3;
+  private static final int REMAP_VERSION = 4;
 
   // Runtime classes OptiFine's Reflector loads while the game runs (e.g. OptiFineClassTransformer
   // and the interfaces its defineClass resolves). A prepared jar missing any of these poisons the
@@ -70,6 +71,7 @@ public class OptiFinePatcher {
 
   public OptiFinePatcher() {
     this.patchers = new HashMap<>();
+    this.registerPatcher("optifine/OptiFineClassTransformer", new OptiFineTransformerPatcher());
     this.registerPatcher("net/optifine/shaders/gui/GuiButtonDownloadShaders",
         new OptiFineShaderDownloadButtonPatcher());
     this.registerPatcher("net/optifine/gui/GuiButtonOF", new OptiFineWidgetIdentifierPatcher());
