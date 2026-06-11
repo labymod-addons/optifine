@@ -23,7 +23,11 @@ import java.nio.file.Path;
 public class IsolatedClassLoader extends URLClassLoader {
 
   public IsolatedClassLoader() {
-    super(new URL[0], IsolatedClassLoader.class.getClassLoader().getParent());
+    // Parent must never reach the game classloader: URLClassLoader is parent-first, and in
+    // production the addon's classloader parent IS the LabyClassLoader, which permanently caches
+    // every miss in its invalid-class set. The optifine.* lookups happening here (before the
+    // prepared jar is on the game classpath) would poison those names for the entire session.
+    super(new URL[0], ClassLoader.getPlatformClassLoader());
   }
 
   public void addPath(Path path) {

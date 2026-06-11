@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipFile;
 import net.labymod.addons.optifine.exception.OptiFineException;
 import net.labymod.addons.optifine.handler.OptiFineVersion;
 import net.labymod.addons.optifine.launch.patches.OptiFineShaderDownloadButtonPatcher;
@@ -55,6 +56,15 @@ public class OptiFinePatcher {
 
   // Bump when the pipeline logic changes in a way that invalidates already-prepared jars.
   private static final int REMAP_VERSION = 3;
+
+  // Runtime classes OptiFine's Reflector loads while the game runs (e.g. OptiFineClassTransformer
+  // and the interfaces its defineClass resolves). A prepared jar missing any of these poisons the
+  // launcher's invalid-class cache at runtime, so such a jar must never be used.
+  private static final String[] REQUIRED_RUNTIME_ENTRIES = {
+      "optifine/OptiFineClassTransformer.class",
+      "optifine/IResourceProvider.class",
+      "optifine/IOptiFineResourceLocator.class",
+  };
 
   private final Map<String, List<Patcher>> patchers;
 
@@ -88,8 +98,14 @@ public class OptiFinePatcher {
 
     String fingerprint = this.fingerprint(obfuscatedClientJar, rawOptiFineJar, stripForge);
     if (this.isUpToDate(destination, checksumFile, fingerprint)) {
-      LOGGER.info("Prepared OptiFine jar up to date, skipping ({})", destination);
-      return destination;
+      try {
+        this.requireRuntimeEntries(destination);
+        LOGGER.info("Prepared OptiFine jar up to date, skipping ({})", destination);
+        return destination;
+      } catch (OptiFineException exception) {
+        LOGGER.warn("Cached prepared OptiFine jar is unusable, re-preparing: {}",
+            exception.getMessage());
+      }
     }
 
     Path scratchDirectory = directory.resolve("tmp");
@@ -125,6 +141,7 @@ public class OptiFinePatcher {
       if (IOUtil.isCorrupted(prepared)) {
         throw new OptiFineException("Prepared OptiFine jar is corrupted");
       }
+      this.requireRuntimeEntries(prepared);
       IOUtil.atomicMove(prepared, destination);
     } catch (IOException exception) {
       throw new OptiFineException("Failed to finalize prepared OptiFine jar", exception);
@@ -140,6 +157,18 @@ public class OptiFinePatcher {
 
     LOGGER.info("Prepared OptiFine jar {}", destination);
     return destination;
+  }
+
+  private void requireRuntimeEntries(Path jar) throws OptiFineException {
+    try (ZipFile zip = new ZipFile(jar.toFile())) {
+      for (String entry : REQUIRED_RUNTIME_ENTRIES) {
+        if (zip.getEntry(entry) == null) {
+          throw new OptiFineException("Prepared OptiFine jar is missing " + entry);
+        }
+      }
+    } catch (IOException exception) {
+      throw new OptiFineException("Failed to validate prepared OptiFine jar " + jar, exception);
+    }
   }
 
   private boolean isUpToDate(Path destination, Path checksumFile, String fingerprint) {
